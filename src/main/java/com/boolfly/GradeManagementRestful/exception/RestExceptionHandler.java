@@ -19,7 +19,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         ResponseEntity<Object> errorResponse = super.handleMethodArgumentNotValid(ex, headers, status, request);
-
         if (errorResponse == null) {
             return null;
         }

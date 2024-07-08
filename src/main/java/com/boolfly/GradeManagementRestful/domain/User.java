@@ -2,13 +2,15 @@ package com.boolfly.GradeManagementRestful.domain;
 
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table
 @Setter
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     private Long id;

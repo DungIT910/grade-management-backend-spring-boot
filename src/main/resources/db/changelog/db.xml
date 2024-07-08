@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
@@ -127,5 +127,15 @@
     <changeSet id="load-role-masterdata" author="DungIT910">
         <loadData tableName="role" file="db/changelog/masterdata/role_data.csv"/>
     </changeSet>
-
+    <changeSet id="load-student-masterdata" author="DungIT910">
+        <loadData tableName="user" file="db/changelog/masterdata/student_data.csv"/>
+    </changeSet>
+    <changeSet id="constraint-not-null-for-user-active" author="DungIT910">
+        <update tableName="user">
+            <column name="active" valueBoolean="true"/>
+            <where>active is null</where>
+        </update>
+        <addNotNullConstraint tableName="user" columnName="active" columnDataType="bool"/>
+        <addDefaultValue tableName="user" columnName="active" defaultValueBoolean="true"/>
+    </changeSet>
 </databaseChangeLog>
