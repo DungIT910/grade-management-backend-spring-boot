@@ -3,7 +3,7 @@ package com.boolfly.GradeManagementRestful.service.impl;
 import com.boolfly.GradeManagementRestful.api.dto.user.SearchUserRequest;
 import com.boolfly.GradeManagementRestful.api.dto.user.StudentRegistrationRequest;
 import com.boolfly.GradeManagementRestful.api.dto.user.StudentUpdateRequest;
-import com.boolfly.GradeManagementRestful.domain.QUser;
+import com.boolfly.GradeManagementRestful.builder.user.StudentSearchParamsBuilder;
 import com.boolfly.GradeManagementRestful.domain.Role;
 import com.boolfly.GradeManagementRestful.domain.User;
 import com.boolfly.GradeManagementRestful.domain.model.role.RoleModel;
@@ -20,10 +20,9 @@ import io.hypersistence.tsid.TSID;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -56,17 +55,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> getStudents(int page, int size, SearchUserRequest request) {
-        List<RoleModel> roles = request.getRoles()
-                .stream()
-                .filter(RoleModel.ROLE_STUDENT::equals)
-                .toList();
-        QUser queryUser = QUser.user;
-        BooleanExpression predicate = queryUser.role.name.in(roles
-                .stream()
-                .map(RoleModel::getRoleName)
-                .toList());
+        StudentSearchParamsBuilder searchParamsBuilder = StudentSearchParamsBuilder.from(page, size, request);
+        BooleanExpression predicate = searchParamsBuilder.getCommonCriteriaValue();
+        Pageable pageable = searchParamsBuilder.getPageable();
 
-        return userRepository.findAll(predicate, PageRequest.of(page, size));
+        return userRepository.findAll(predicate, pageable);
     }
 
     @Override

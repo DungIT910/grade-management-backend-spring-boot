@@ -7,11 +7,14 @@ import com.boolfly.GradeManagementRestful.api.dto.user.StudentRegistrationReques
 import com.boolfly.GradeManagementRestful.api.dto.user.StudentResponse;
 import com.boolfly.GradeManagementRestful.api.dto.user.StudentUpdateRequest;
 import com.boolfly.GradeManagementRestful.domain.User;
+import com.boolfly.GradeManagementRestful.domain.model.role.RoleModel;
 import com.boolfly.GradeManagementRestful.mapper.UserMapper;
 import com.boolfly.GradeManagementRestful.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -30,6 +33,7 @@ public class UserResourceImpl implements UserResource {
     @PostMapping("/students")
     @Override
     public PageResponse<StudentResponse> getStudents(int page, int size, SearchUserRequest request) {
+        request = request.withRoles(List.of(RoleModel.ROLE_STUDENT));
         Page<User> pageUser = userService.getStudents(page, size, request);
         Page<StudentResponse> pStudentResponse = pageUser
                 .map(userMapper::toStudentResponse);
@@ -50,4 +54,5 @@ public class UserResourceImpl implements UserResource {
     public void deactivateStudent(@PathVariable("studentId") String studentId) {
         userService.deactivateStudent(studentId);
     }
+
 }
