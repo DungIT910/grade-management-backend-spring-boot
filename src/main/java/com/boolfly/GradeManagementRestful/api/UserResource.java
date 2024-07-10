@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -29,5 +28,5 @@ public interface UserResource {
     StudentResponse updateStudent(@Valid @RequestBody StudentUpdateRequest request);
 
     @Operation(summary = "Deactivate a student")
-    void deactivateStudent(@PathVariable String studentId);
+    void deactivateStudent(String studentId);
 }

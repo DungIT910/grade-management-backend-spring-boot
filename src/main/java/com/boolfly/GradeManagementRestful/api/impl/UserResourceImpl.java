@@ -51,7 +51,7 @@ public class UserResourceImpl implements UserResource {
 
     @DeleteMapping("/students/{studentId}")
     @Override
-    public void deactivateStudent(@PathVariable("studentId") String studentId) {
+    public void deactivateStudent(@PathVariable String studentId) {
         userService.deactivateStudent(studentId);
     }
 
