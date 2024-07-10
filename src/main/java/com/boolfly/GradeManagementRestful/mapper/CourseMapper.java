@@ -10,6 +10,10 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+
 @Mapper
 public interface CourseMapper {
     CourseMapper INSTANCE = Mappers.getMapper(CourseMapper.class);
@@ -31,8 +35,25 @@ public interface CourseMapper {
         return TSID.from(user.getId()).toString();
     }
 
+    @Named("toLecturerName")
+    static String toLecturerName(User user) {
+        return user.getFirstName() + " " + user.getLastName();
+    }
+
+    @Named("toLocalDate")
+    static LocalDate toLocalDate(Instant instant) {
+        if (instant == null) {
+            return null;
+        }
+        return LocalDate.ofInstant(instant, ZoneId.systemDefault());
+    }
+
     @Mapping(target = "courseId", source = "id", qualifiedByName = "toCourseId")
     @Mapping(target = "subjectId", source = "subject", qualifiedByName = "toSubjectId")
     @Mapping(target = "lecturerId", source = "lecturer", qualifiedByName = "toLecturerId")
+    @Mapping(target = "subjectName", source = "subject.name")
+    @Mapping(target = "lecturerName", source = "lecturer", qualifiedByName = "toLecturerName")
+    @Mapping(target = "startTime", source = "startTime", qualifiedByName = "toLocalDate")
+    @Mapping(target = "endTime", source = "endTime", qualifiedByName = "toLocalDate")
     CourseResponse toCourseResponse(Course course);
 }

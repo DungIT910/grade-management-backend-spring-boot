@@ -19,12 +19,11 @@ public abstract class AbstractSearchParamsBuilder implements SearchParamsBuilder
     }
 
     /**
-     *
      * @param <T> subclass of AbstractBuilder
      * @param <B> subclass of AbstractSearchParamsBuilder
      */
     @SuppressWarnings("unchecked")
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T, B>, B extends AbstractSearchParamsBuilder> {
+    protected abstract static class AbstractBuilder<T extends AbstractBuilder<T, B>, B extends AbstractSearchParamsBuilder> {
         protected int page;
         protected int size;
 

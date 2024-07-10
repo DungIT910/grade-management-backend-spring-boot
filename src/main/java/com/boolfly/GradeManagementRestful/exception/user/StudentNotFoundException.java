@@ -1,9 +1,9 @@
 package com.boolfly.GradeManagementRestful.exception.user;
 
-import com.boolfly.GradeManagementRestful.exception.base.GradeManagementRuntimeException;
+import com.boolfly.GradeManagementRestful.exception.generic.NotFoundException;
 
-public class StudentNotFoundException extends GradeManagementRuntimeException {
+public class StudentNotFoundException extends NotFoundException {
     public StudentNotFoundException() {
-        super("Student not found");
+        super("Student");
     }
 }
