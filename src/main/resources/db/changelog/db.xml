@@ -138,4 +138,29 @@
         <addNotNullConstraint tableName="user" columnName="active" columnDataType="bool"/>
         <addDefaultValue tableName="user" columnName="active" defaultValueBoolean="true"/>
     </changeSet>
+    <changeSet id="load-subject-data" author="DungIT910">
+        <loadData tableName="subject" file="db/changelog/masterdata/subject_data.csv"/>
+    </changeSet>
+    <changeSet id="load-course-data" author="DungIT910">
+        <loadData tableName="course" file="db/changelog/masterdata/course_data.csv"/>
+    </changeSet>
+    <changeSet id="constraint-not-null-for-course-subject_id-and-lecturer_id" author="">
+        <addNotNullConstraint tableName="course" columnName="subject_id" columnDataType="bigint"/>
+        <addNotNullConstraint tableName="course" columnName="lecturer_id" columnDataType="bigint"/>
+    </changeSet>
+    <changeSet id="add-start_time-end_time-min_quantity-status-for-course" author="DungIT910">
+        <addColumn tableName="course">
+            <column name="start_time" type="timestamp"/>
+            <column name="end_time" type="timestamp"/>
+            <column name="min_quantity" type="int"/>
+            <column name="status" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="update-course-status-default-value" author="DungIT910">
+        <update tableName="course">
+            <column name="status" value="ACTIVE"/>
+            <where>status is null</where>
+        </update>
+        <addDefaultValue tableName="course" columnName="status" defaultValue="ACTIVE"/>
+    </changeSet>
 </databaseChangeLog>

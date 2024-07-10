@@ -10,3 +10,13 @@ public class GradeManagementRestfulApplication {
         SpringApplication.run(GradeManagementRestfulApplication.class, args);
     }
 }
+/*
+
+
+
+
+
+598707016670147661
+598707016670147662
+598707016670147663
+598707016670147664*/

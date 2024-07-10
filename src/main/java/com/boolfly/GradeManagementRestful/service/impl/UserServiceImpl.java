@@ -69,41 +69,38 @@ public class UserServiceImpl implements UserService {
         if (role.isEmpty()) {
             throw new RoleNotFoundException(RoleModel.ROLE_STUDENT.getRoleType());
         }
-        userRepository.findById(TSID.from(request.getStudentId()).toLong()).map(user1 -> {
-            if (!user1.getRole().getId().equals(role.get().getId())) {
-                throw new IsNotStudentException();
-            }
-            Optional.ofNullable(request.getFirstName())
-                    .filter(fn -> !fn.isEmpty() && !Objects.equals(user1.getFirstName(), fn))
-                    .ifPresent(user1::setFirstName);
-            Optional.ofNullable(request.getLastName())
-                    .filter(ln -> !ln.isEmpty() && !Objects.equals(user1.getLastName(), ln))
-                    .ifPresent(user1::setLastName);
-            Optional.ofNullable(request.getEmail())
-                    .filter(e -> !e.isEmpty() && !Objects.equals(user1.getEmail(), e))
-                    .ifPresent(e -> {
-                        userRepository.findByEmail(e)
-                                .ifPresentOrElse(st -> {
-                                    throw new EmailTakenException(e);
-                                }, () -> user1.setEmail(e));
-                    });
-            return user1;
-        }).orElseThrow(StudentNotFoundException::new);
-        return userRepository.findById(TSID.from(request.getStudentId()).toLong())
+        return userRepository.findById(TSID.from(request.getStudentId()).toLong()).map(user1 -> {
+                    if (!user1.getRole().getId().equals(role.get().getId())) {
+                        throw new IsNotStudentException();
+                    }
+                    Optional.ofNullable(request.getFirstName())
+                            .filter(fn -> !fn.isEmpty() && !Objects.equals(user1.getFirstName(), fn))
+                            .ifPresent(user1::setFirstName);
+                    Optional.ofNullable(request.getLastName())
+                            .filter(ln -> !ln.isEmpty() && !Objects.equals(user1.getLastName(), ln))
+                            .ifPresent(user1::setLastName);
+                    Optional.ofNullable(request.getEmail())
+                            .filter(e -> !e.isEmpty() && !Objects.equals(user1.getEmail(), e))
+                            .ifPresent(e -> userRepository.findByEmail(e)
+                                    .ifPresentOrElse(st -> {
+                                        throw new EmailTakenException(e);
+                                    }, () -> user1.setEmail(e)));
+                    return user1;
+                })
                 .orElseThrow(StudentNotFoundException::new);
     }
 
     @Override
     public void deactivateStudent(String studentId) {
         userRepository.findById(TSID.from(studentId).toLong())
-                .map(user -> {
-                    if (user.getActive()) {
+                .ifPresentOrElse(user -> {
+                    if (Boolean.TRUE.equals(user.getActive())) {
                         user.setActive(false);
-                        return userRepository.save(user);
+                        userRepository.save(user);
                     }
-                    return user;
-                })
-                .orElseThrow(StudentNotFoundException::new);
+                }, () -> {
+                    throw new StudentNotFoundException();
+                });
     }
 
 
