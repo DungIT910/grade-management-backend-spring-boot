@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="init-tables" author="dungit910">
+        <createTable tableName="role">
+            <column name="id" type="bigint"/>
+            <column name="name" type="varchar(255)"/>
+        </createTable>
+        <addPrimaryKey tableName="role" columnNames="id"/>
+        <createTable tableName="user">
+            <column name="id" type="bigint"/>
+            <column name="first_name" type="varchar(255)"/>
+            <column name="last_name" type="varchar(255)"/>
+            <column name="email" type="varchar(255)"/>
+            <column name="password" type="varchar(255)"/>
+            <column name="role_id" type="bigint">
+                <constraints foreignKeyName="fk_user_role"
+                             referencedTableName="role"
+                             referencedColumnNames="id"/>
+            </column>
+            <column name="avatar" type="varchar(255)"/>
+            <column name="active" type="bool"/>
+        </createTable>
+        <addPrimaryKey tableName="user" columnNames="id"/>
+
+        <createTable tableName="subject">
+            <column name="id" type="bigint"/>
+            <column name="name" type="varchar(255)"/>
+        </createTable>
+        <addPrimaryKey tableName="subject" columnNames="id"/>
+
+        <createTable tableName="subcol">
+            <column name="id" type="bigint"/>
+            <column name="name" type="varchar(255)"/>
+        </createTable>
+        <addPrimaryKey tableName="subcol" columnNames="id"/>
+
+        <createTable tableName="subgrade">
+            <column name="id" type="bigint"/>
+            <column name="subcol_id" type="bigint">
+                <constraints foreignKeyName="fk_subgrade_subcol"
+                             referencedTableName="subcol"
+                             referencedColumnNames="id"/>
+            </column>
+            <column name="student_id" type="bigint">
+                <constraints foreignKeyName="fk_subgrade_student"
+                             referencedTableName="user"
+                             referencedColumnNames="id"/>
+            </column>
+            <column name="grade" type="decimal"/>
+        </createTable>
+        <addPrimaryKey tableName="subgrade" columnNames="id"/>
+
+        <createTable tableName="course">
+            <column name="id" type="bigint"/>
+            <column name="name" type="varchar(255)"/>
+            <column name="lecturer_id" type="bigint">
+                <constraints foreignKeyName="fk_course_user"
+                             referencedTableName="user"
+                             referencedColumnNames="id"/>
+            </column>
+            <column name="subject_id" type="bigint">
+                <constraints foreignKeyName="fk_course_subject"
+                             referencedTableName="subject"
+                             referencedColumnNames="id"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="course" columnNames="id"/>
+
+        <createTable tableName="forum">
+            <column name="id" type="bigint"/>
+            <column name="name" type="varchar(255)"/>
+            <column name="description" type="varchar(255)"/>
+            <column name="course_id" type="bigint">
+                <constraints foreignKeyName="fk_forum_course"
+                             referencedTableName="course"
+                             referencedColumnNames="id"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="forum" columnNames="id"/>
+
+        <createTable tableName="post">
+            <column name="id" type="bigint"/>
+            <column name="title" type="varchar(255)"/>
+            <column name="content" type="varchar(255)"/>
+            <column name="forum_id" type="bigint">
+                <constraints foreignKeyName="fk_post_forum"
+                             referencedTableName="forum"
+                             referencedColumnNames="id"
+                />
+            </column>
+            <column name="created_on" type="timestamp"/>
+            <column name="updated_on" type="timestamp"/>
+            <column name="user_id" type="bigint">
+                <constraints foreignKeyName="fk_post_user"
+                             referencedTableName="user"
+                             referencedColumnNames="id"
+                />
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="post" columnNames="id"/>
+
+        <createTable tableName="maingrade">
+            <column name="id" type="bigint"/>
+            <column name="student_id" type="bigint">
+                <constraints foreignKeyName="fk_maingrade_user"
+                             referencedTableName="user"
+                             referencedColumnNames="id"
+                />
+            </column>
+            <column name="course_id" type="bigint">
+                <constraints foreignKeyName="fk_maingrade_course"
+                             referencedTableName="course"
+                             referencedColumnNames="id"
+                />
+            </column>
+            <column name="midterm_grade" type="decimal"/>
+            <column name="final_grade" type="decimal"/>
+        </createTable>
+        <addPrimaryKey tableName="maingrade" columnNames="id"/>
+
+    </changeSet>
+    <changeSet id="load-role-masterdata" author="DungIT910">
+        <loadData tableName="role" file="db/changelog/masterdata/role_data.csv"/>
+    </changeSet>
+    <changeSet id="load-student-masterdata" author="DungIT910">
+        <loadData tableName="user" file="db/changelog/masterdata/student_data.csv"/>
+    </changeSet>
+    <changeSet id="constraint-not-null-for-user-active" author="DungIT910">
+        <update tableName="user">
+            <column name="active" valueBoolean="true"/>
+            <where>active is null</where>
+        </update>
+        <addNotNullConstraint tableName="user" columnName="active" columnDataType="bool"/>
+        <addDefaultValue tableName="user" columnName="active" defaultValueBoolean="true"/>
+    </changeSet>
+</databaseChangeLog>
