@@ -13,10 +13,6 @@ public final class SubjectEntityPathProvider implements CommonEntityPathProvider
         // private constructor
     }
 
-    private static class Holder {
-        private static final CommonEntityPathProvider<SubjectStatus> INSTANCE = new SubjectEntityPathProvider();
-    }
-
     public static CommonEntityPathProvider<SubjectStatus> getInstance() {
         return Holder.INSTANCE;
     }
@@ -34,5 +30,9 @@ public final class SubjectEntityPathProvider implements CommonEntityPathProvider
     @Override
     public BooleanExpression statusIn(List<SubjectStatus> status) {
         return subject.status.in(status);
+    }
+
+    private static class Holder {
+        private static final CommonEntityPathProvider<SubjectStatus> INSTANCE = new SubjectEntityPathProvider();
     }
 }

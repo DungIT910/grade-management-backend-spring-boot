@@ -4,8 +4,10 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 
 import java.util.List;
 
-public interface CommonEntityPathProvider<ST> {
+public interface CommonEntityPathProvider<T> {
     BooleanExpression nameLikeIgnoreCase(String name);
+
     BooleanExpression idEquals(Long id);
-    BooleanExpression statusIn(List<ST> status);
+
+    BooleanExpression statusIn(List<T> status);
 }

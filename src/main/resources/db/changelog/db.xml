@@ -183,4 +183,16 @@
             <where>status is null</where>
         </update>
     </changeSet>
+    <changeSet id="add-status-field-to-forum" author="DungIT910">
+        <addColumn tableName="forum">
+            <column name="status" type="varchar(255)"/>
+        </addColumn>
+        <update tableName="forum">
+            <column name="status" value="ACTIVE"/>
+            <where>status is null</where>
+        </update>
+    </changeSet>
+    <changeSet id="load-forum-data" author="DungIT910">
+        <loadData tableName="forum" file="db/changelog/masterdata/forum_data.csv"/>
+    </changeSet>
 </databaseChangeLog>
