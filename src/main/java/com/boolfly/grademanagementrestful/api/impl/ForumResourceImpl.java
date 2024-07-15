@@ -53,9 +53,9 @@ public class ForumResourceImpl implements ForumResource {
         }
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{forumId}")
     @Override
-    public void deactivateForum(String forumId) {
+    public void deactivateForum(@PathVariable String forumId) {
         try {
             forumService.deactivateForum(forumId);
         } catch (Exception e) {

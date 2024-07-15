@@ -14,7 +14,7 @@ public class ForumEntityPathProvider implements CommonEntityPathProvider<ForumSt
     }
 
     public static CommonEntityPathProvider<ForumStatus> getInstance() {
-        return ForumEntityPathProvider.Holder.INSTANCE;
+        return Holder.INSTANCE;
     }
 
     @Override

@@ -25,11 +25,11 @@ public abstract class AbstractSearchParamsBuilder implements SearchParamsBuilder
      * @param name
      * @param id
      * @param status
-     * @param <ST>     status type
+     * @param <T>      status type
      * @return
      */
-    protected <ST> Optional<BooleanExpression> getCommonCriteria(CommonEntityPathProvider<ST> provider, String name,
-                                                                 String id, List<ST> status) {
+    protected <T> Optional<BooleanExpression> getCommonCriteria(CommonEntityPathProvider<T> provider, String name,
+                                                                String id, List<T> status) {
         return Stream.of(
                         Optional.ofNullable(name)
                                 .map(str -> "%" + str + "%")

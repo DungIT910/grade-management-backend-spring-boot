@@ -7,10 +7,8 @@ import com.boolfly.grademanagementrestful.builder.base.SearchParamsBuilder;
 import com.boolfly.grademanagementrestful.builder.forum.ForumSearchParamsBuilder;
 import com.boolfly.grademanagementrestful.domain.Forum;
 import com.boolfly.grademanagementrestful.domain.model.forum.ForumStatus;
-import com.boolfly.grademanagementrestful.domain.model.subject.SubjectStatus;
 import com.boolfly.grademanagementrestful.exception.course.CourseNotFoundException;
 import com.boolfly.grademanagementrestful.exception.forum.ForumNotFoundException;
-import com.boolfly.grademanagementrestful.exception.subject.SubjectNotFoundException;
 import com.boolfly.grademanagementrestful.repository.CourseRepository;
 import com.boolfly.grademanagementrestful.repository.ForumRepository;
 import com.boolfly.grademanagementrestful.service.ForumService;
@@ -71,12 +69,10 @@ public class ForumServiceImpl implements ForumService {
                             .filter(courseId -> !courseId.isEmpty() && !Objects.equals(forum.getCourse().getId(), TSID.from(courseId).toLong()))
                             .map(TSID::from)
                             .map(TSID::toLong)
-                            .ifPresent(courseId -> {
-                                courseRepository.findById(courseId)
-                                        .ifPresentOrElse(forum::setCourse, () -> {
-                                            throw new CourseNotFoundException(request.getCourseId());
-                                        });
-                            });
+                            .ifPresent(courseId -> courseRepository.findById(courseId)
+                                    .ifPresentOrElse(forum::setCourse, () -> {
+                                        throw new CourseNotFoundException(request.getCourseId());
+                                    }));
                     return forumRepository.save(forum);
                 }).orElseThrow(() -> new ForumNotFoundException(request.getForumId()));
     }
@@ -84,13 +80,14 @@ public class ForumServiceImpl implements ForumService {
     @Override
     public void deactivateForum(String forumId) {
         forumRepository.findById(TSID.from(forumId).toLong())
-                .map(forum -> {
+                .ifPresentOrElse(forum -> {
                     if (ForumStatus.INACTIVE.equals(forum.getStatus())) {
-                        return forum;
+                        return;
                     }
                     forum.setStatus(ForumStatus.INACTIVE);
-                    return forumRepository.save(forum);
-                })
-                .orElseThrow(() -> new SubjectNotFoundException(forumId));
+                    forumRepository.save(forum);
+                }, () -> {
+                    throw new ForumNotFoundException(forumId);
+                });
     }
 }
