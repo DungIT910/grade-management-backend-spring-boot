@@ -57,6 +57,9 @@ public class SubjectServiceImpl implements SubjectService {
     public void deactivateSubject(String subjectId) {
         subjectRepository.findById(TSID.from(subjectId).toLong())
                 .map(subject -> {
+                    if (SubjectStatus.INACTIVE.equals(subject.getStatus())) {
+                        return subject;
+                    }
                     subject.setStatus(SubjectStatus.INACTIVE);
                     return subjectRepository.save(subject);
                 })
