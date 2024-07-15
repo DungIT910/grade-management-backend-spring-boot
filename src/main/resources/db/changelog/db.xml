@@ -163,4 +163,24 @@
         </update>
         <addDefaultValue tableName="course" columnName="status" defaultValue="ACTIVE"/>
     </changeSet>
+    <changeSet id="add-active-column-to-subject" author="DungIT910">
+        <addColumn tableName="subject">
+            <column name="active" type="bool" defaultValueBoolean="true"/>
+        </addColumn>
+        <update tableName="subject">
+            <column name="active" valueBoolean="true"/>
+            <where>active is null</where>
+        </update>
+        <addNotNullConstraint tableName="subject" columnName="active" columnDataType="bool"/>
+    </changeSet>
+    <changeSet id="alter-subject-table-drop-column-bool-active-and-add-varchar-status" author="">
+        <dropColumn tableName="subject" columnName="active"/>
+        <addColumn tableName="subject">
+            <column name="status" type="varchar(255)"/>
+        </addColumn>
+        <update tableName="subject">
+            <column name="status" value="ACTIVE"/>
+            <where>status is null</where>
+        </update>
+    </changeSet>
 </databaseChangeLog>
