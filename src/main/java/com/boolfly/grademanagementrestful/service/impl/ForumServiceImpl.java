@@ -7,6 +7,7 @@ import com.boolfly.grademanagementrestful.builder.base.SearchParamsBuilder;
 import com.boolfly.grademanagementrestful.builder.forum.ForumSearchParamsBuilder;
 import com.boolfly.grademanagementrestful.domain.Forum;
 import com.boolfly.grademanagementrestful.domain.model.forum.ForumStatus;
+import com.boolfly.grademanagementrestful.domain.model.subject.SubjectStatus;
 import com.boolfly.grademanagementrestful.exception.course.CourseNotFoundException;
 import com.boolfly.grademanagementrestful.exception.forum.ForumNotFoundException;
 import com.boolfly.grademanagementrestful.exception.subject.SubjectNotFoundException;
@@ -84,6 +85,9 @@ public class ForumServiceImpl implements ForumService {
     public void deactivateForum(String forumId) {
         forumRepository.findById(TSID.from(forumId).toLong())
                 .map(forum -> {
+                    if (ForumStatus.INACTIVE.equals(forum.getStatus())) {
+                        return forum;
+                    }
                     forum.setStatus(ForumStatus.INACTIVE);
                     return forumRepository.save(forum);
                 })
