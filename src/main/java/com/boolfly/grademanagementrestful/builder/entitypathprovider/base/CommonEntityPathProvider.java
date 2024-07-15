@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface CommonEntityPathProvider<ST> {
     BooleanExpression nameLikeIgnoreCase(String name);
+
     BooleanExpression idEquals(Long id);
+
     BooleanExpression statusIn(List<ST> status);
 }

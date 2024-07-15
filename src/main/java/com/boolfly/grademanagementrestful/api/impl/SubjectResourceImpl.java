@@ -32,7 +32,11 @@ public class SubjectResourceImpl implements SubjectResource {
     @PostMapping
     @Override
     public SubjectResponse addSubject(SubjectAddRequest request) {
-        return subjectMapper.toSubjectResponse(subjectService.addSubject(request));
+        try {
+            return subjectMapper.toSubjectResponse(subjectService.addSubject(request));
+        } catch (Exception e) {
+            throw new GradeManagementRuntimeException(e);
+        }
     }
 
     @PutMapping
