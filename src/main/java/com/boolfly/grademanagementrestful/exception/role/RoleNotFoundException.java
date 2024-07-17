@@ -1,9 +1,9 @@
 package com.boolfly.grademanagementrestful.exception.role;
 
-import com.boolfly.grademanagementrestful.exception.generic.NotFoundException;
+import com.boolfly.grademanagementrestful.exception.base.GradeManagementRuntimeException;
 
-public class RoleNotFoundException extends NotFoundException {
+public class RoleNotFoundException extends GradeManagementRuntimeException {
     public RoleNotFoundException(String name) {
-        super("Role " + name);
+        super("Role " + name + " not found");
     }
 }

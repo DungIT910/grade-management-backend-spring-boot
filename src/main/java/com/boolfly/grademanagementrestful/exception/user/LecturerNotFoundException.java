@@ -1,9 +1,9 @@
 package com.boolfly.grademanagementrestful.exception.user;
 
-import com.boolfly.grademanagementrestful.exception.generic.NotFoundException;
+import com.boolfly.grademanagementrestful.exception.base.GradeManagementRuntimeException;
 
-public class LecturerNotFoundException extends NotFoundException {
+public class LecturerNotFoundException extends GradeManagementRuntimeException {
     public LecturerNotFoundException(String id) {
-        super("Lecturer " + id);
+        super("Lecturer " + id + " not found");
     }
 }
