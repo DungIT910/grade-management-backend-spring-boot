@@ -4,7 +4,6 @@ import com.boolfly.grademanagementrestful.api.dto.user.SearchUserRequest;
 import com.boolfly.grademanagementrestful.builder.base.AbstractSearchParamsBuilder;
 import com.boolfly.grademanagementrestful.domain.model.role.RoleModel;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import io.hypersistence.tsid.TSID;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,8 +46,7 @@ public final class StudentSearchParamsBuilder extends AbstractSearchParamsBuilde
                                 .map(str -> "%" + lastName + "%")
                                 .map(user.lastName::likeIgnoreCase),
                         Optional.ofNullable(studentId)
-                                .map(TSID::from)
-                                .map(TSID::toLong)
+                                .map(this::toTSIDLong)
                                 .map(user.id::eq)
                 )
                 .filter(Optional::isPresent).map(Optional::get)

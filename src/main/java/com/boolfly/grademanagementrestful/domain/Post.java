@@ -1,29 +1,27 @@
 package com.boolfly.grademanagementrestful.domain;
 
+import com.boolfly.grademanagementrestful.domain.base.AbstractAuditEntity;
+import com.boolfly.grademanagementrestful.domain.model.post.PostStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
-import java.time.Instant;
+import lombok.*;
 
 
 @Entity
 @Table
 @Setter
 @Getter
-public class Post {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Post extends AbstractAuditEntity {
     @Id
     private Long id;
     private String title;
     private String content;
     @ManyToOne(fetch = FetchType.LAZY)
     private Forum forum;
-    @CreatedDate
-    private Instant createdOn;
-    @LastModifiedDate
-    private Instant updatedOn;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+    @Enumerated(EnumType.STRING)
+    private PostStatus status;
 }
