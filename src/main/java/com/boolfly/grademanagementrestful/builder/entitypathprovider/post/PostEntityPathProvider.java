@@ -10,6 +10,7 @@ import static com.boolfly.grademanagementrestful.domain.QPost.post;
 
 public class PostEntityPathProvider implements CommonEntityPathProvider<PostStatus> {
     private PostEntityPathProvider() {
+        // private constructor
     }
 
     public static CommonEntityPathProvider<PostStatus> getInstance() {
