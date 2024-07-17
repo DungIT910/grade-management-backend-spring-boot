@@ -35,8 +35,7 @@ public abstract class AbstractSearchParamsBuilder implements SearchParamsBuilder
                                 .map(str -> "%" + str + "%")
                                 .map(provider::nameLikeIgnoreCase),
                         Optional.ofNullable(id)
-                                .map(TSID::from)
-                                .map(TSID::toLong)
+                                .map(this::toTSIDLong)
                                 .map(provider::idEquals),
                         Optional.of(status)
                                 .filter(stt -> !stt.isEmpty())
@@ -44,6 +43,10 @@ public abstract class AbstractSearchParamsBuilder implements SearchParamsBuilder
                 )
                 .filter(Optional::isPresent).map(Optional::get)
                 .reduce(BooleanExpression::and);
+    }
+
+    protected Long toTSIDLong(String id) {
+        return TSID.from(id).toLong();
     }
 
     @Override

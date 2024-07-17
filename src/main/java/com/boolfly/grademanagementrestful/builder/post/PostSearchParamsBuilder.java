@@ -5,8 +5,6 @@ import com.boolfly.grademanagementrestful.builder.base.AbstractSearchParamsBuild
 import com.boolfly.grademanagementrestful.builder.entitypathprovider.post.PostEntityPathProvider;
 import com.boolfly.grademanagementrestful.domain.model.post.PostStatus;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import io.hypersistence.tsid.TSID;
 
 import java.util.List;
 import java.util.Objects;
@@ -45,24 +43,17 @@ public class PostSearchParamsBuilder extends AbstractSearchParamsBuilder {
 
     @Override
     public Optional<BooleanExpression> getCommonCriteria() {
-        return Optional.ofNullable(
-                getCommonCriteria(PostEntityPathProvider.getInstance(), title, postId, status)
-                        .orElseGet(() -> Expressions.TRUE)
-                        .and(Stream.of(
-                                                Optional.ofNullable(forumId)
-                                                        .map(TSID::from)
-                                                        .map(TSID::toLong)
-                                                        .map(post.forum.id::eq),
-                                                Optional.ofNullable(userId)
-                                                        .map(TSID::from)
-                                                        .map(TSID::toLong)
-                                                        .map(post.user.id::eq)
-                                        ).filter(Optional::isPresent)
-                                        .map(Optional::get)
-                                        .reduce(BooleanExpression::and)
-                                        .orElseGet(() -> Expressions.TRUE)
-                        )
-        );
+        return Stream.of(
+                        getCommonCriteria(PostEntityPathProvider.getInstance(), title, postId, status),
+                        Optional.ofNullable(forumId)
+                                .map(this::toTSIDLong)
+                                .map(post.forum.id::eq),
+                        Optional.ofNullable(userId)
+                                .map(this::toTSIDLong)
+                                .map(post.user.id::eq)
+                )
+                .filter(Optional::isPresent).map(Optional::get)
+                .reduce(BooleanExpression::and);
     }
 
     public static class PostBuilder extends AbstractBuilder<PostBuilder, PostSearchParamsBuilder> {

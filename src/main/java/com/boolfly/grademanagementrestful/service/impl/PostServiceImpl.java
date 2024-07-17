@@ -51,7 +51,9 @@ public class PostServiceImpl implements PostService {
                                 .forum(forum)
                                 .user(user)
                                 .status(PostStatus.ACTIVE)
-                                .build())).orElseThrow(() -> new UserNotFoundException(request.getUserId()))).orElseThrow(() -> new ForumNotFoundException(request.getForumId()));
+                                .build()))
+                        .orElseThrow(() -> new UserNotFoundException(request.getUserId()))
+                ).orElseThrow(() -> new ForumNotFoundException(request.getForumId()));
     }
 
     @Override
@@ -89,13 +91,14 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deactivatePost(String postId) {
         postRepository.findById(TSID.from(postId).toLong())
-                .map(post -> {
+                .ifPresentOrElse(post -> {
                     if (PostStatus.INACTIVE.equals(post.getStatus())) {
-                        return post;
+                        return;
                     }
                     post.setStatus(PostStatus.INACTIVE);
-                    return postRepository.save(post);
-                })
-                .orElseThrow(() -> new PostNotFoundException(postId));
+                    postRepository.save(post);
+                }, () -> {
+                    throw new PostNotFoundException(postId);
+                });
     }
 }

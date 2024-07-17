@@ -3,8 +3,6 @@ package com.boolfly.grademanagementrestful.api.dto.post;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 public class PostResponse {
@@ -15,7 +13,7 @@ public class PostResponse {
     private String forumName;
     private String userId;
     private String userName;
-    private LocalDateTime createdOn;
-    private LocalDateTime updatedOn;
+    private String createdOn;
+    private String updatedOn;
     private String status;
 }

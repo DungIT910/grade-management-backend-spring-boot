@@ -195,4 +195,14 @@
     <changeSet id="load-forum-data" author="DungIT910">
         <loadData tableName="forum" file="db/changelog/masterdata/forum_data.csv"/>
     </changeSet>
+    <changeSet id="add-status-field-to-post-and-load-post-data" author="dungIT910">
+        <addColumn tableName="post">
+            <column name="status" type="varchar(255)"/>
+        </addColumn>
+        <loadData tableName="post" file="db/changelog/masterdata/post_data.csv"/>
+    </changeSet>
+    <changeSet id="constraint-not-null-for-forum_id-and-user_id-in-post" author="DungIT910">
+        <addNotNullConstraint tableName="post" columnName="user_id" columnDataType="bigint"/>
+        <addNotNullConstraint tableName="post" columnName="forum_id" columnDataType="bigint"/>
+    </changeSet>
 </databaseChangeLog>
