@@ -1,15 +1,16 @@
 package com.boolfly.grademanagementrestful.domain;
 
+import com.boolfly.grademanagementrestful.domain.model.maingrade.MaingradeStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.math.BigDecimal;
+import lombok.*;
 
 @Entity
 @Table
 @Setter
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Maingrade {
     @Id
     private Long id;
@@ -17,6 +18,8 @@ public class Maingrade {
     private User student;
     @ManyToOne(fetch = FetchType.LAZY)
     private Course course;
-    private BigDecimal midtermGrade;
-    private BigDecimal finalGrade;
+    private Double midtermGrade;
+    private Double finalGrade;
+    @Enumerated(EnumType.STRING)
+    private MaingradeStatus status;
 }

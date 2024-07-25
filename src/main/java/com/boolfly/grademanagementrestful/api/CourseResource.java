@@ -4,7 +4,10 @@ import com.boolfly.grademanagementrestful.api.dto.course.CourseAddRequest;
 import com.boolfly.grademanagementrestful.api.dto.course.CourseResponse;
 import com.boolfly.grademanagementrestful.api.dto.course.CourseUpdateRequest;
 import com.boolfly.grademanagementrestful.api.dto.course.SearchCourseRequest;
+import com.boolfly.grademanagementrestful.api.dto.course.student.CourseAddStudentRequest;
+import com.boolfly.grademanagementrestful.api.dto.course.student.CourseAddStudentResponse;
 import com.boolfly.grademanagementrestful.api.dto.general.PageResponse;
+import com.boolfly.grademanagementrestful.api.dto.subcol.CourseSubcolResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,4 +32,13 @@ public interface CourseResource {
 
     @Operation(summary = "deactivate a course")
     void deactivateCourse(String courseId);
+
+    @Operation(summary = "Add students to a course")
+    CourseAddStudentResponse addStudentsToCourse(String courseId, @Valid @RequestBody CourseAddStudentRequest request);
+
+    @Operation(summary = "Deactivate a student in a course")
+    void deactivateStudent(String courseId, String studentId);
+
+    @Operation(summary = "Get all sub-cols of a course")
+    CourseSubcolResponse getSubcols(String courseId);
 }

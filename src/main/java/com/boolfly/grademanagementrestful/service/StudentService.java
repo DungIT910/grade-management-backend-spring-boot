@@ -6,7 +6,7 @@ import com.boolfly.grademanagementrestful.api.dto.user.StudentUpdateRequest;
 import com.boolfly.grademanagementrestful.domain.User;
 import org.springframework.data.domain.Page;
 
-public interface UserService {
+public interface StudentService {
     User createStudent(StudentRegistrationRequest request);
 
     Page<User> getStudents(int page, int size, SearchUserRequest request);

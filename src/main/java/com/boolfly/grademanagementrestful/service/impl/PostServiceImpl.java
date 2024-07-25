@@ -6,6 +6,7 @@ import com.boolfly.grademanagementrestful.api.dto.post.SearchPostRequest;
 import com.boolfly.grademanagementrestful.builder.base.SearchParamsBuilder;
 import com.boolfly.grademanagementrestful.builder.post.PostSearchParamsBuilder;
 import com.boolfly.grademanagementrestful.domain.Post;
+import com.boolfly.grademanagementrestful.domain.model.forum.ForumStatus;
 import com.boolfly.grademanagementrestful.domain.model.post.PostStatus;
 import com.boolfly.grademanagementrestful.exception.forum.ForumNotFoundException;
 import com.boolfly.grademanagementrestful.exception.post.PostNotFoundException;
@@ -42,8 +43,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post addPost(PostAddRequest request) {
-        return forumRepository.findById(TSID.from(request.getForumId()).toLong())
-                .map(forum -> userRepository.findById(TSID.from(request.getUserId()).toLong())
+        return forumRepository.findByIdAndStatus(TSID.from(request.getForumId()).toLong(), ForumStatus.ACTIVE)
+                .map(forum -> userRepository.findByIdAndActiveTrue(TSID.from(request.getUserId()).toLong())
                         .map(user -> postRepository.save(Post.builder()
                                 .id(TSID.fast().toLong())
                                 .title(request.getTitle())
@@ -59,7 +60,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post updatePost(PostUpdateRequest request) {
         TSID postId = TSID.from(request.getPostId());
-        return postRepository.findById(postId.toLong())
+        return postRepository.findByIdAndStatus(postId.toLong(), PostStatus.ACTIVE)
                 .map(post -> {
                     Optional.ofNullable(request.getTitle())
                             .filter(title -> !title.isEmpty() && !Objects.equals(post.getTitle(), title))
@@ -71,7 +72,7 @@ public class PostServiceImpl implements PostService {
                             .filter(frId -> !frId.isEmpty() && !Objects.equals(post.getForum().getId(), TSID.from(frId).toLong()))
                             .map(TSID::from)
                             .map(TSID::toLong)
-                            .ifPresent(frId -> forumRepository.findById(frId)
+                            .ifPresent(frId -> forumRepository.findByIdAndStatus(frId, ForumStatus.ACTIVE)
                                     .ifPresentOrElse(post::setForum, () -> {
                                         throw new ForumNotFoundException(request.getForumId());
                                     }));
@@ -79,7 +80,7 @@ public class PostServiceImpl implements PostService {
                             .filter(userId -> !userId.isEmpty() && !Objects.equals(post.getUser().getId(), TSID.from(userId).toLong()))
                             .map(TSID::from)
                             .map(TSID::toLong)
-                            .ifPresent(userId -> userRepository.findById(userId)
+                            .ifPresent(userId -> userRepository.findByIdAndActiveTrue(userId)
                                     .ifPresentOrElse(post::setUser, () -> {
                                         throw new UserNotFoundException(request.getUserId());
                                     }));

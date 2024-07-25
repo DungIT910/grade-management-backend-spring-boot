@@ -1,8 +1,8 @@
 package com.boolfly.grademanagementrestful.api.dto.course;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class CourseAddRequest {
     private String name;
     private String subjectId;

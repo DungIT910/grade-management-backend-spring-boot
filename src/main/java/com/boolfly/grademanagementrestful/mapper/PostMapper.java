@@ -2,7 +2,6 @@ package com.boolfly.grademanagementrestful.mapper;
 
 import com.boolfly.grademanagementrestful.api.dto.post.PostResponse;
 import com.boolfly.grademanagementrestful.domain.Post;
-import com.boolfly.grademanagementrestful.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -13,13 +12,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @Mapper
-public interface PostMapper extends TSIDMapper {
+public interface PostMapper extends TSIDMapper, NameMapper {
     PostMapper INSTANCE = Mappers.getMapper(PostMapper.class);
-
-    @Named("toUserName")
-    static String toUserName(User user) {
-        return user.getFirstName() + " " + user.getLastName();
-    }
 
     @Named("toStringWithFormat")
     static String toStringWithFormat(Instant instant) {

@@ -13,4 +13,6 @@ public interface UserRepository extends JpaRepository<User, Long>, QuerydslPredi
     Optional<User> findByEmail(String email);
 
     Page<User> findByRole(Role role, Pageable pageable);
+
+    Optional<User> findByIdAndActiveTrue(Long id);
 }

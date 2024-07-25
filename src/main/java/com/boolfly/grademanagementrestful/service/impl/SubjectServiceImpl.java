@@ -44,7 +44,7 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Override
     public Subject updateSubject(SubjectUpdateRequest request) {
-        return subjectRepository.findById(TSID.from(request.getSubjectId()).toLong())
+        return subjectRepository.findByIdAndStatus(TSID.from(request.getSubjectId()).toLong(), SubjectStatus.ACTIVE)
                 .map(subject -> {
                     Optional.ofNullable(request.getName())
                             .filter(name -> !name.isEmpty() && !Objects.equals(subject.getName(), name))

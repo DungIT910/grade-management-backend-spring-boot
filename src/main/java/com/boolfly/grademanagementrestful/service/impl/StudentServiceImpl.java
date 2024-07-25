@@ -3,18 +3,18 @@ package com.boolfly.grademanagementrestful.service.impl;
 import com.boolfly.grademanagementrestful.api.dto.user.SearchUserRequest;
 import com.boolfly.grademanagementrestful.api.dto.user.StudentRegistrationRequest;
 import com.boolfly.grademanagementrestful.api.dto.user.StudentUpdateRequest;
-import com.boolfly.grademanagementrestful.builder.user.StudentSearchParamsBuilder;
+import com.boolfly.grademanagementrestful.builder.user.UserSearchParamsBuilder;
 import com.boolfly.grademanagementrestful.domain.Role;
 import com.boolfly.grademanagementrestful.domain.User;
 import com.boolfly.grademanagementrestful.domain.model.role.RoleModel;
 import com.boolfly.grademanagementrestful.exception.role.RoleNotFoundException;
+import com.boolfly.grademanagementrestful.exception.user.EmailNotFoundException;
 import com.boolfly.grademanagementrestful.exception.user.EmailTakenException;
 import com.boolfly.grademanagementrestful.exception.user.IsNotStudentException;
-import com.boolfly.grademanagementrestful.exception.user.StudentEmailNotFoundException;
 import com.boolfly.grademanagementrestful.exception.user.StudentNotFoundException;
 import com.boolfly.grademanagementrestful.repository.RoleRepository;
 import com.boolfly.grademanagementrestful.repository.UserRepository;
-import com.boolfly.grademanagementrestful.service.UserService;
+import com.boolfly.grademanagementrestful.service.StudentService;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.hypersistence.tsid.TSID;
 import jakarta.transaction.Transactional;
@@ -28,7 +28,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class StudentServiceImpl implements StudentService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
@@ -46,16 +46,17 @@ public class UserServiceImpl implements UserService {
                                 .firstName(request.getFirstName())
                                 .lastName(request.getLastName())
                                 .password(request.getPassword())
+                                .active(true)
                                 .role(role)
                                 .build()))
                         .orElseThrow(() -> new RoleNotFoundException(RoleModel.ROLE_STUDENT.getRoleType())));
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new StudentEmailNotFoundException(email));
+                .orElseThrow(() -> new EmailNotFoundException(email));
     }
 
     @Override
     public Page<User> getStudents(int page, int size, SearchUserRequest request) {
-        StudentSearchParamsBuilder searchParamsBuilder = StudentSearchParamsBuilder.from(page, size, request);
+        UserSearchParamsBuilder searchParamsBuilder = UserSearchParamsBuilder.from(page, size, request);
         BooleanExpression predicate = searchParamsBuilder.getCommonCriteriaValue();
         Pageable pageable = searchParamsBuilder.getPageable();
 
@@ -69,7 +70,7 @@ public class UserServiceImpl implements UserService {
         if (role.isEmpty()) {
             throw new RoleNotFoundException(RoleModel.ROLE_STUDENT.getRoleType());
         }
-        return userRepository.findById(TSID.from(request.getStudentId()).toLong()).map(user1 -> {
+        return userRepository.findByIdAndActiveTrue(TSID.from(request.getStudentId()).toLong()).map(user1 -> {
                     if (!user1.getRole().getId().equals(role.get().getId())) {
                         throw new IsNotStudentException();
                     }
