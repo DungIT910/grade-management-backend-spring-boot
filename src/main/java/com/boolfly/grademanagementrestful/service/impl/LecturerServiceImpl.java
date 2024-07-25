@@ -68,7 +68,8 @@ public class LecturerServiceImpl implements LecturerService {
         if (role.isEmpty()) {
             throw new RoleNotFoundException(RoleModel.ROLE_LECTURER.getRoleType());
         }
-        return userRepository.findByIdAndActiveTrue(TSID.from(request.getLecturerId()).toLong()).map(user -> {
+        String lecturerId = request.getLecturerId();
+        return userRepository.findByIdAndActiveTrue(TSID.from(lecturerId).toLong()).map(user -> {
                     if (!user.getRole().getId().equals(role.get().getId())) {
                         throw new IsNotLecturerException();
                     }
@@ -86,7 +87,7 @@ public class LecturerServiceImpl implements LecturerService {
                                     }, () -> user.setEmail(e)));
                     return user;
                 })
-                .orElseThrow(LecturerNotFoundException::new);
+                .orElseThrow(() -> new LecturerNotFoundException(lecturerId));
     }
 
     @Override
@@ -100,7 +101,7 @@ public class LecturerServiceImpl implements LecturerService {
                         userRepository.save(user);
                     }
                 }, () -> {
-                    throw new LecturerNotFoundException();
+                    throw new LecturerNotFoundException(lecturerId);
                 });
     }
 }

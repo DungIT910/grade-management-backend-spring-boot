@@ -1,9 +1,9 @@
 package com.boolfly.grademanagementrestful.exception.subject;
 
-import com.boolfly.grademanagementrestful.exception.generic.NotFoundException;
+import com.boolfly.grademanagementrestful.exception.base.GradeManagementRuntimeException;
 
-public class SubjectNotFoundException extends NotFoundException {
+public class SubjectNotFoundException extends GradeManagementRuntimeException {
     public SubjectNotFoundException(String id) {
-        super("Subject " + id);
+        super("Subject " + id + " not found");
     }
 }

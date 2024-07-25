@@ -9,6 +9,21 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
+/**
+ * Abstract base class for entities to automatically handle audit fields.
+ * <p>
+ * This class is annotated with {@link MappedSuperclass} to indicate that it is a base class for JPA entities,
+ * and with {@link EntityListeners} to enable auditing using {@link AuditingEntityListener}.
+ * The {@link CreatedDate} and {@link LastModifiedDate} annotations are used to automatically populate the audit fields.
+ *
+ * @see MappedSuperclass
+ * @see EntityListeners
+ * @see AuditingEntityListener
+ * @see CreatedDate
+ * @see LastModifiedDate
+ *
+ * @author Bao Le
+ */
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
