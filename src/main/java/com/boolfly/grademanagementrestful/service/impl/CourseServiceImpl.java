@@ -64,7 +64,7 @@ public class CourseServiceImpl implements CourseService {
                                 .status(CourseStatus.ACTIVE)
                                 .build())
                         )
-                        .orElseThrow(LecturerNotFoundException::new)
+                        .orElseThrow(() -> new LecturerNotFoundException(lecturerId.toString()))
                 )
                 .orElseThrow(() -> new SubjectNotFoundException(subjectId.toString()));
     }
@@ -83,7 +83,7 @@ public class CourseServiceImpl implements CourseService {
                                         course.setLecturer(lec);
                                         return course;
                                     })
-                                    .orElseThrow(LecturerNotFoundException::new)
+                                    .orElseThrow(() -> new LecturerNotFoundException(lecId))
                             );
                     Optional.ofNullable(request.getSubjectId())
                             .filter(subjectId -> !subjectId.isEmpty() && !Objects.equals(course.getSubject().getId(), TSID.from(subjectId).toLong()))
