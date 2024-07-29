@@ -55,15 +55,10 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Override
     public void deactivateSubject(String subjectId) {
-        subjectRepository.findById(TSID.from(subjectId).toLong())
-                .ifPresentOrElse(subject -> {
-                    if (SubjectStatus.INACTIVE.equals(subject.getStatus())) {
-                        return;
-                    }
-                    subject.setStatus(SubjectStatus.INACTIVE);
-                    subjectRepository.save(subject);
-                }, () -> {
-                    throw new SubjectNotFoundException(subjectId);
-                });
+        Subject subject = subjectRepository.findByIdAndStatus(TSID.from(subjectId).toLong(), SubjectStatus.ACTIVE)
+                .orElseThrow(() -> new SubjectNotFoundException(subjectId));
+
+        subject.setStatus(SubjectStatus.INACTIVE);
+        subjectRepository.save(subject);
     }
 }

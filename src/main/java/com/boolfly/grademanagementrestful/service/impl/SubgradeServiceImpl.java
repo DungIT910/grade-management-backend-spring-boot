@@ -8,9 +8,9 @@ import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,17 +19,12 @@ public class SubgradeServiceImpl implements SubgradeService {
 
     @Override
     public Map<String, List<PairSubgradeSubcol>> getPairSubgradeSubcol(List<Maingrade> maingradeList) {
-        Map<String, List<PairSubgradeSubcol>> mapPairSubgradeSubcol = new HashMap<>();
-
-        for (Maingrade maingrade : maingradeList) {
-            Long courseId = maingrade.getCourse().getId();
-            Long studentId = maingrade.getStudent().getId();
-
-            List<PairSubgradeSubcol> pairSubgradeSubcolList = subgradeRepository
-                    .findAllByCourseIdAndStudentIdAndActive(courseId, studentId);
-
-            mapPairSubgradeSubcol.put(TSID.from(maingrade.getId()).toString(), pairSubgradeSubcolList);
-        }
+        Map<String, List<PairSubgradeSubcol>> mapPairSubgradeSubcol = maingradeList.stream()
+                .collect(Collectors.toMap(
+                        maingrade -> TSID.from(maingrade.getId()).toString(),
+                        maingrade -> subgradeRepository.findAllByCourseIdAndStudentIdAndActive(
+                                maingrade.getCourse().getId(), maingrade.getStudent().getId())
+                ));
 
         return Map.copyOf(mapPairSubgradeSubcol);
     }

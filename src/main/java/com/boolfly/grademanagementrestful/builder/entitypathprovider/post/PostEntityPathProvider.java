@@ -8,7 +8,7 @@ import java.util.List;
 
 import static com.boolfly.grademanagementrestful.domain.QPost.post;
 
-public class PostEntityPathProvider implements CommonEntityPathProvider<PostStatus> {
+public final class PostEntityPathProvider implements CommonEntityPathProvider<PostStatus> {
     private PostEntityPathProvider() {
         // private constructor
     }

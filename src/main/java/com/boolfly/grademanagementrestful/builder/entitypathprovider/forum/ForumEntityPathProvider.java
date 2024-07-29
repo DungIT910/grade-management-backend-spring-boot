@@ -8,7 +8,7 @@ import java.util.List;
 
 import static com.boolfly.grademanagementrestful.domain.QForum.forum;
 
-public class ForumEntityPathProvider implements CommonEntityPathProvider<ForumStatus> {
+public final class ForumEntityPathProvider implements CommonEntityPathProvider<ForumStatus> {
     private ForumEntityPathProvider() {
         // private constructor
     }

@@ -58,7 +58,8 @@ public class ForumServiceImpl implements ForumService {
 
     @Override
     public Forum updateForum(ForumUpdateRequest request) {
-        TSID forumId = TSID.from(request.getForumId());
+        String forumIdAsString = request.getForumId();
+        TSID forumId = TSID.from(forumIdAsString);
         return forumRepository.findByIdAndStatus(forumId.toLong(), ForumStatus.ACTIVE)
                 .map(forum -> {
                     Optional.ofNullable(request.getName())
@@ -67,36 +68,34 @@ public class ForumServiceImpl implements ForumService {
                     Optional.ofNullable(request.getDescription())
                             .filter(des -> !des.isEmpty() && !Objects.equals(forum.getDescription(), des))
                             .ifPresent(forum::setDescription);
-                    Optional.ofNullable(request.getCourseId())
+                    String courseIdAsString = request.getCourseId();
+                    Optional.ofNullable(courseIdAsString)
                             .filter(courseId -> !courseId.isEmpty() && !Objects.equals(forum.getCourse().getId(), TSID.from(courseId).toLong()))
                             .map(TSID::from)
                             .map(TSID::toLong)
-                            .ifPresent(courseId -> courseRepository.findByIdAndStatus(courseId, CourseStatus.ACTIVE)
-                                    .ifPresentOrElse(forum::setCourse, () -> {
-                                        throw new CourseNotFoundException(request.getCourseId());
-                                    }));
-                    return forumRepository.save(forum);
-                }).orElseThrow(() -> new ForumNotFoundException(request.getForumId()));
+                            .flatMap(courseId -> courseRepository.findByIdAndStatus(courseId, CourseStatus.ACTIVE))
+                            .ifPresentOrElse(forum::setCourse, () -> {
+                                throw new CourseNotFoundException(courseIdAsString);
+                            });
+                    return forum;
+                })
+                .map(forumRepository::save)
+                .orElseThrow(() -> new ForumNotFoundException(forumIdAsString));
     }
 
     @Override
     public void deactivateForum(String forumId) {
-        forumRepository.findById(TSID.from(forumId).toLong())
-                .ifPresentOrElse(forum -> {
-                    if (ForumStatus.INACTIVE.equals(forum.getStatus())) {
-                        return;
-                    }
-                    forum.setStatus(ForumStatus.INACTIVE);
-                    postRepository.findAllByForum_Id(forum.getId()).forEach(post -> {
-                        if (ForumStatus.INACTIVE.equals(forum.getStatus())) {
-                            return;
-                        }
-                        post.setStatus(PostStatus.INACTIVE);
-                        postRepository.save(post);
-                    });
-                    forumRepository.save(forum);
-                }, () -> {
-                    throw new ForumNotFoundException(forumId);
+        Long forumIdAsLong = TSID.from(forumId).toLong();
+        Forum forum = forumRepository.findByIdAndStatus(forumIdAsLong, ForumStatus.ACTIVE)
+                        .orElseThrow(() -> new ForumNotFoundException(forumId));
+
+        forum.setStatus(ForumStatus.INACTIVE);
+        forumRepository.save(forum);
+
+        postRepository.findAllByForum_Id(forumIdAsLong)
+                .forEach(post -> {
+                    post.setStatus(PostStatus.INACTIVE);
+                    postRepository.save(post);
                 });
     }
 }

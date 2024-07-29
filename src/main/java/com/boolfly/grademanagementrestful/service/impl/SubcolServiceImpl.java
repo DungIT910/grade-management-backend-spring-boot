@@ -5,6 +5,7 @@ import com.boolfly.grademanagementrestful.api.dto.subcol.SubcolAddRequest;
 import com.boolfly.grademanagementrestful.api.dto.subcol.SubcolUpdateRequest;
 import com.boolfly.grademanagementrestful.builder.base.SearchParamsBuilder;
 import com.boolfly.grademanagementrestful.builder.subcol.SubcolSearchParamsBuilder;
+import com.boolfly.grademanagementrestful.domain.Course;
 import com.boolfly.grademanagementrestful.domain.Subcol;
 import com.boolfly.grademanagementrestful.domain.model.course.CourseStatus;
 import com.boolfly.grademanagementrestful.domain.model.subcol.SubcolStatus;
@@ -44,31 +45,34 @@ public class SubcolServiceImpl implements SubcolService {
 
     @Override
     public Subcol addSubcol(SubcolAddRequest request) {
-        Long courseId = TSID.from(request.getCourseId()).toLong();
-        return courseRepository.findByIdAndStatus(courseId, CourseStatus.ACTIVE)
-                .map(course -> {
-                    if (subcolRepository.countByCourseIdAndStatus(courseId, SubcolStatus.ACTIVE) < 3) {
-                        return subcolRepository.save(
-                                Subcol.builder()
-                                        .id(TSID.fast().toLong())
-                                        .name(request.getSubcolName())
-                                        .course(course)
-                                        .status(SubcolStatus.ACTIVE)
-                                        .build());
-                    }
-                    throw new SubcolLimitException();
-                }).orElseThrow(() -> new CourseNotFoundException(request.getCourseId()));
+        String courseIdAsString = request.getCourseId();
+        Long courseId = TSID.from(courseIdAsString).toLong();
+        Course course = courseRepository.findByIdAndStatus(courseId, CourseStatus.ACTIVE)
+                .orElseThrow(() -> new CourseNotFoundException(courseIdAsString));
+
+        if (subcolRepository.countByCourseIdAndStatus(courseId, SubcolStatus.ACTIVE) >= 3) {
+            throw new SubcolLimitException();
+        }
+
+        return subcolRepository.save(
+                Subcol.builder()
+                        .id(TSID.fast().toLong())
+                        .name(request.getSubcolName())
+                        .course(course)
+                        .status(SubcolStatus.ACTIVE)
+                        .build());
     }
 
     @Override
     public Subcol updateSubcol(SubcolUpdateRequest request) {
-        return subcolRepository.findByIdAndStatus(TSID.from(request.getSubcolId()).toLong(), SubcolStatus.ACTIVE)
+        String subcolIdAsString = request.getSubcolId();
+        return subcolRepository.findByIdAndStatus(TSID.from(subcolIdAsString).toLong(), SubcolStatus.ACTIVE)
                 .map(subcol -> {
                     Optional.ofNullable(request.getSubcolName())
                             .filter(name -> !name.isEmpty() && !Objects.equals(name, subcol.getName()))
                             .ifPresent(subcol::setName);
                     return subcolRepository.save(subcol);
-                }).orElseThrow(() -> new SubcolNotFoundException(request.getSubcolId()));
+                }).orElseThrow(() -> new SubcolNotFoundException(subcolIdAsString));
     }
 
     @Override

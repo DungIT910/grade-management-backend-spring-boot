@@ -8,7 +8,7 @@ import java.util.List;
 
 import static com.boolfly.grademanagementrestful.domain.QSubcol.subcol;
 
-public class SubcolEntityPathProvider implements CommonEntityPathProvider<SubcolStatus> {
+public final class SubcolEntityPathProvider implements CommonEntityPathProvider<SubcolStatus> {
     private SubcolEntityPathProvider() {
         // private constructor
     }

@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 import static com.boolfly.grademanagementrestful.domain.QMaingrade.maingrade;
 
-public class GradeSearchParamsBuilder extends AbstractSearchParamsBuilder {
+public final class GradeSearchParamsBuilder extends AbstractSearchParamsBuilder {
     private final String courseId;
     private final String studentId;
 
