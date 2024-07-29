@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class StudentUpdateRequest implements UserUpdateRequest {
     @NotBlank
-    private String studentId;
+    private String id;
     @NotBlank
     private String firstName;
     @NotBlank
@@ -15,9 +15,4 @@ public class StudentUpdateRequest implements UserUpdateRequest {
     @OUMailChecker
     @NotBlank
     private String email;
-
-    @Override
-    public String getUserId() {
-        return studentId;
-    }
 }

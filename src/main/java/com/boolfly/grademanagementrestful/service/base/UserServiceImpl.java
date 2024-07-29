@@ -56,7 +56,7 @@ public abstract class UserServiceImpl implements UserService {
 
     @Override
     public User update(UserUpdateRequest request, RoleModel roleModel) {
-        TSID userId = TSID.from(request.getUserId());
+        TSID userId = TSID.from(request.getId());
         return userRepository.findByIdAndActiveTrueAndRole_Name(userId.toLong(), roleModel.getRoleName())
                 .map(user -> {
                     String email = request.getEmail();

@@ -1,7 +1,7 @@
 package com.boolfly.grademanagementrestful.api.dto.user;
 
 public interface UserUpdateRequest {
-    String getUserId();
+    String getId();
 
     String getFirstName();
 
