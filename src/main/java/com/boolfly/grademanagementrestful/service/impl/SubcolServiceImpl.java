@@ -47,7 +47,7 @@ public class SubcolServiceImpl implements SubcolService {
         Long courseId = TSID.from(request.getCourseId()).toLong();
         return courseRepository.findByIdAndStatus(courseId, CourseStatus.ACTIVE)
                 .map(course -> {
-                    if (subcolRepository.countByCourseIdAndStatus(courseId, SubcolStatus.ACTIVE) < 3)
+                    if (subcolRepository.countByCourseIdAndStatus(courseId, SubcolStatus.ACTIVE) < 3) {
                         return subcolRepository.save(
                                 Subcol.builder()
                                         .id(TSID.fast().toLong())
@@ -55,6 +55,7 @@ public class SubcolServiceImpl implements SubcolService {
                                         .course(course)
                                         .status(SubcolStatus.ACTIVE)
                                         .build());
+                    }
                     throw new SubcolLimitException();
                 }).orElseThrow(() -> new CourseNotFoundException(request.getCourseId()));
     }
@@ -72,21 +73,17 @@ public class SubcolServiceImpl implements SubcolService {
 
     @Override
     public void deactivateSubcol(String subcolId) {
-        subcolRepository.findById(TSID.from(subcolId).toLong())
-                .ifPresentOrElse(subcol -> {
-                    if (SubcolStatus.ACTIVE.equals(subcol.getStatus())) {
-                        subcol.setStatus(SubcolStatus.INACTIVE);
-                        subcolRepository.save(subcol);
-                    }
-                    subgradeRepository.findAllBySubcol_Id(subcol.getId())
-                            .forEach(sg -> {
-                                if (SubgradeStatus.ACTIVE.equals(sg.getStatus())) {
-                                    sg.setStatus(SubgradeStatus.INACTIVE);
-                                    subgradeRepository.save(sg);
-                                }
-                            });
-                }, () -> {
-                    throw new SubcolNotFoundException(subcolId);
+        Subcol subcol = subcolRepository.findByIdAndStatus(TSID.from(subcolId).toLong(), SubcolStatus.ACTIVE)
+                .map(sc -> {
+                    sc.setStatus(SubcolStatus.INACTIVE);
+                    return subcolRepository.save(sc);
+                })
+                .orElseThrow(() -> new SubcolNotFoundException(subcolId));
+
+        subgradeRepository.findAllBySubcol_IdAndStatus(subcol.getId(), SubgradeStatus.ACTIVE)
+                .forEach(sg -> {
+                    sg.setStatus(SubgradeStatus.INACTIVE);
+                    subgradeRepository.save(sg);
                 });
     }
 }

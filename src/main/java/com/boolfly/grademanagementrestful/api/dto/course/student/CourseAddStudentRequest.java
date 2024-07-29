@@ -6,5 +6,5 @@ import java.util.List;
 
 @Getter
 public class CourseAddStudentRequest {
-    List<String> studentIds;
+    private List<String> studentIds;
 }

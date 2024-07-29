@@ -1,12 +1,11 @@
 package com.boolfly.grademanagementrestful.api.dto.subcol;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.boolfly.grademanagementrestful.api.dto.general.CollectionResponse;
 
-import java.util.List;
+import java.util.Collection;
 
-@Getter
-@Setter
-public class CourseSubcolResponse {
-    private List<SubcolResponse> subcols;
+public class CourseSubcolResponse extends CollectionResponse<SubcolResponse> {
+    public void setSubcols(Collection<SubcolResponse> content) {
+        setContent(content);
+    }
 }

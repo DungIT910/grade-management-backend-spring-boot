@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class LecturerAddRequest {
+public class LecturerAddRequest implements UserRegistrationRequest {
     private String firstName;
     private String lastName;
 

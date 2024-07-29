@@ -27,7 +27,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -116,27 +115,40 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<User> addStudentsToCourse(String courseId, CourseAddStudentRequest request) {
-        return courseRepository.findByIdAndStatus(TSID.from(courseId).toLong(), CourseStatus.ACTIVE)
-                .map(course -> {
-                            List<User> students = new ArrayList<>();
-                            for (String id : request.getStudentIds()) {
-                                TSID studentId = TSID.from(id);
-                                userRepository.findByIdAndActiveTrue(studentId.toLong())
-                                        .ifPresent(student -> {
-                                            maingradeRepository.save(
-                                                    Maingrade.builder()
-                                                            .id(TSID.fast().toLong())
-                                                            .course(course)
-                                                            .student(student)
-                                                            .status(MaingradeStatus.ACTIVE)
-                                                            .build()
-                                            );
-                                            students.add(student);
-                                        });
-                            }
-                            return students;
-                        }
-                ).orElseThrow(() -> new CourseNotFoundException(courseId));
+        List<String> studentIds = request.getStudentIds();
+        if (studentIds == null || studentIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> studentIdsAsLong = studentIds.stream()
+                .filter(id -> id != null && !id.isEmpty())
+                .map(id -> TSID.from(id).toLong())
+                .toList();
+
+        Course course = courseRepository.findByIdAndStatus(TSID.from(courseId).toLong(), CourseStatus.ACTIVE)
+                .orElseThrow(() -> new CourseNotFoundException(courseId));
+
+        List<User> students = userRepository.findAllByIdInAndActiveTrue(studentIdsAsLong);
+
+        students
+                .forEach(student -> {
+                    Maingrade maingrade = maingradeRepository.findByCourse_IdAndStudent_Id(course.getId(), student.getId())
+                            .orElseGet(() -> maingradeRepository.save(
+                                    Maingrade.builder()
+                                            .id(TSID.fast().toLong())
+                                            .course(course)
+                                            .student(student)
+                                            .status(MaingradeStatus.ACTIVE)
+                                            .build()
+                            ));
+
+                    if (MaingradeStatus.INACTIVE.equals(maingrade.getStatus())) {
+                        maingrade.setStatus(MaingradeStatus.ACTIVE);
+                        maingradeRepository.save(maingrade);
+                    }
+                });
+
+        return students;
     }
 
     @Override

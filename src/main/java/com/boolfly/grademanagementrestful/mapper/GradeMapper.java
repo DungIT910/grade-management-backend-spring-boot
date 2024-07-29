@@ -19,6 +19,7 @@ public interface GradeMapper extends TSIDMapper, NameMapper {
     @Mapping(target = "courseId", source = "course.id", qualifiedByName = "toTSIDString")
     @Mapping(target = "courseName", source = "course.name")
     @Mapping(target = "subgradeList", ignore = true)
+    @Mapping(target = "withSubgradeList", ignore = true)
     GradeResponse toGradeResponse(Maingrade maingrade);
 
     @Mapping(target = "maingradeId", source = "id", qualifiedByName = "toTSIDString")

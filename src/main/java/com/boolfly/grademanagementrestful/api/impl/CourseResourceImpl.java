@@ -73,7 +73,7 @@ public class CourseResourceImpl implements CourseResource {
                 .toList();
 
         return CourseAddStudentResponse.builder()
-                .students(content)
+                .content(content)
                 .build();
     }
 

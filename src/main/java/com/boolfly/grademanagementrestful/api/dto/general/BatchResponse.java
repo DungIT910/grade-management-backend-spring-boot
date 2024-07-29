@@ -1,14 +1,12 @@
 package com.boolfly.grademanagementrestful.api.dto.general;
 
-import lombok.*;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Collection;
 
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-public class BatchResponse<T> {
-    List<T> batch;
+public class BatchResponse<T> extends CollectionResponse<T> {
+    public void setBatch(Collection<T> content) {
+        setContent(content);
+    }
 }

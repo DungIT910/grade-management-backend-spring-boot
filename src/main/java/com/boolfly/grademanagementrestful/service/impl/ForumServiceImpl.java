@@ -83,12 +83,14 @@ public class ForumServiceImpl implements ForumService {
     public void deactivateForum(String forumId) {
         forumRepository.findById(TSID.from(forumId).toLong())
                 .ifPresentOrElse(forum -> {
-                    if (ForumStatus.INACTIVE.equals(forum.getStatus()))
+                    if (ForumStatus.INACTIVE.equals(forum.getStatus())) {
                         return;
+                    }
                     forum.setStatus(ForumStatus.INACTIVE);
                     postRepository.findAllByForum_Id(forum.getId()).forEach(post -> {
-                        if (ForumStatus.INACTIVE.equals(forum.getStatus()))
+                        if (ForumStatus.INACTIVE.equals(forum.getStatus())) {
                             return;
+                        }
                         post.setStatus(PostStatus.INACTIVE);
                         postRepository.save(post);
                     });

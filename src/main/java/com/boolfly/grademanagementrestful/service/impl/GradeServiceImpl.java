@@ -89,9 +89,7 @@ public class GradeServiceImpl implements GradeService {
                                 if (mq.isUpdateFinalGrade())
                                     mg.setFinalGrade(mq.getFinalGrade());
                                 mgList.add(mg);
-                            }, () -> {
-                                errorList.add(mq);
-                            })
+                            }, () -> errorList.add(mq))
                     );
                     List<Maingrade> maingradeList = maingradeRepository.saveAll(mgList);
                     if (!errorList.isEmpty()) {
@@ -113,9 +111,7 @@ public class GradeServiceImpl implements GradeService {
                         subcolRepository.findByIdAndStatus(subcolId.toLong(), SubcolStatus.ACTIVE)
                                 .flatMap(subcol -> userRepository.findByIdAndActiveTrue(studentId.toLong())
                                         .flatMap(student -> Optional.ofNullable(addOrUpdateSubgrade(subcol, student, sub.getGrade()))))
-                                .ifPresentOrElse(subgradeList::add, () -> {
-                                    errorList.add(sub);
-                                });
+                                .ifPresentOrElse(subgradeList::add, () -> errorList.add(sub));
                     });
                     if (!errorList.isEmpty()) {
                         throw new UpdateErrorSubgradeBatchException(errorList.toString());
