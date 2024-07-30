@@ -70,44 +70,39 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course updateCourse(CourseUpdateRequest request) {
-        return courseRepository.findByIdAndStatus(TSID.from(request.getCourseId()).toLong(), CourseStatus.ACTIVE)
+        String courseIdAsString = request.getCourseId();
+        return courseRepository.findByIdAndStatus(TSID.from(courseIdAsString).toLong(), CourseStatus.ACTIVE)
                 .map(course -> {
                     Optional.ofNullable(request.getName())
                             .filter(name -> !name.isEmpty() && !Objects.equals(course.getName(), name))
                             .ifPresent(course::setName);
                     Optional.ofNullable(request.getLecturerId())
-                            .filter(lecId -> !lecId.isEmpty() && !Objects.equals(course.getLecturer().getId(), TSID.from(lecId).toLong()))
-                            .ifPresent(lecId -> userRepository.findByIdAndActiveTrue(TSID.from(lecId).toLong())
-                                    .map(lec -> {
-                                        course.setLecturer(lec);
-                                        return course;
-                                    })
-                                    .orElseThrow(() -> new LecturerNotFoundException(lecId))
-                            );
+                            .filter(lecId -> !lecId.isEmpty())
+                            .map(TSID::from)
+                            .filter(lecId -> !Objects.equals(course.getLecturer().getId(), lecId.toLong()))
+                            .map(lecId -> userRepository.findByIdAndActiveTrue(lecId.toLong())
+                                    .orElseThrow(() -> new LecturerNotFoundException(lecId.toString())))
+                            .ifPresent(course::setLecturer);
                     Optional.ofNullable(request.getSubjectId())
-                            .filter(subjectId -> !subjectId.isEmpty() && !Objects.equals(course.getSubject().getId(), TSID.from(subjectId).toLong()))
-                            .ifPresent(subjectId -> subjectRepository.findByIdAndStatus(TSID.from(subjectId).toLong(), SubjectStatus.ACTIVE)
-                                    .map(subject -> {
-                                        course.setSubject(subject);
-                                        return course;
-                                    })
-                                    .orElseThrow(() -> new SubjectNotFoundException(request.getSubjectId()))
-                            );
+                            .filter(subjectId -> !subjectId.isEmpty())
+                            .map(TSID::from)
+                            .filter(subjectId -> !Objects.equals(course.getSubject().getId(), subjectId.toLong()))
+                            .map(subjectId -> subjectRepository.findByIdAndStatus(subjectId.toLong(), SubjectStatus.ACTIVE)
+                                    .orElseThrow(() -> new SubjectNotFoundException(subjectId.toString())))
+                            .ifPresent(course::setSubject);
                     course.setStartTime(request.getStartTime().atStartOfDay().toInstant(ZoneOffset.UTC));
                     course.setEndTime(request.getEndTime().atStartOfDay().toInstant(ZoneOffset.UTC));
                     course.setMinQuantity(request.getMinQuantity());
-                    courseRepository.save(course);
                     return course;
-                }).orElseThrow(() -> new CourseNotFoundException(request.getCourseId()));
+                })
+                .map(courseRepository::save)
+                .orElseThrow(() -> new CourseNotFoundException(courseIdAsString));
     }
 
     @Override
     public void deactivateCourse(String courseId) {
-        courseRepository.findById(TSID.from(courseId).toLong())
+        courseRepository.findByIdAndStatus(TSID.from(courseId).toLong(), CourseStatus.ACTIVE)
                 .ifPresent(course -> {
-                    if (CourseStatus.INACTIVE.equals(course.getStatus())) {
-                        return;
-                    }
                     course.setStatus(CourseStatus.INACTIVE);
                     courseRepository.save(course);
                 });
@@ -157,10 +152,8 @@ public class CourseServiceImpl implements CourseService {
         Long studentID = TSID.from(studentId).toLong();
         maingradeRepository.findByCourse_IdAndStudent_IdAndStatus(courseID, studentID, MaingradeStatus.ACTIVE)
                 .ifPresent(maingrade -> {
-                    if (MaingradeStatus.ACTIVE.equals(maingrade.getStatus())) {
-                        maingrade.setStatus(MaingradeStatus.INACTIVE);
-                        maingradeRepository.save(maingrade);
-                    }
+                    maingrade.setStatus(MaingradeStatus.INACTIVE);
+                    maingradeRepository.save(maingrade);
                 });
     }
 

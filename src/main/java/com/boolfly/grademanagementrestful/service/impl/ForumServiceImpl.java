@@ -68,15 +68,13 @@ public class ForumServiceImpl implements ForumService {
                     Optional.ofNullable(request.getDescription())
                             .filter(des -> !des.isEmpty() && !Objects.equals(forum.getDescription(), des))
                             .ifPresent(forum::setDescription);
-                    String courseIdAsString = request.getCourseId();
-                    Optional.ofNullable(courseIdAsString)
-                            .filter(courseId -> !courseId.isEmpty() && !Objects.equals(forum.getCourse().getId(), TSID.from(courseId).toLong()))
+                    Optional.ofNullable(request.getCourseId())
+                            .filter(courseId -> !courseId.isEmpty())
                             .map(TSID::from)
-                            .map(TSID::toLong)
-                            .flatMap(courseId -> courseRepository.findByIdAndStatus(courseId, CourseStatus.ACTIVE))
-                            .ifPresentOrElse(forum::setCourse, () -> {
-                                throw new CourseNotFoundException(courseIdAsString);
-                            });
+                            .filter(courseId -> !Objects.equals(forum.getCourse().getId(), courseId.toLong()))
+                            .map(courseId -> courseRepository.findByIdAndStatus(courseId.toLong(), CourseStatus.ACTIVE)
+                                    .orElseThrow(() -> new CourseNotFoundException(courseId.toString())))
+                            .ifPresent(forum::setCourse);
                     return forum;
                 })
                 .map(forumRepository::save)

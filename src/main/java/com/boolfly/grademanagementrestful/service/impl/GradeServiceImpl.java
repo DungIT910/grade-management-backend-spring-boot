@@ -84,10 +84,12 @@ public class GradeServiceImpl implements GradeService {
                     List<Maingrade> mgList = new ArrayList<>();
                     batch.forEach(mq -> maingradeRepository.findByIdAndStatus(TSID.from(mq.getMaingradeId()).toLong(), MaingradeStatus.ACTIVE)
                             .ifPresentOrElse(mg -> {
-                                if (mq.isUpdatedMidtermGrade())
+                                if (mq.isUpdatedMidtermGrade()) {
                                     mg.setMidtermGrade(mq.getMidtermGrade());
-                                if (mq.isUpdateFinalGrade())
+                                }
+                                if (mq.isUpdateFinalGrade()) {
                                     mg.setFinalGrade(mq.getFinalGrade());
+                                }
                                 mgList.add(mg);
                             }, () -> errorList.add(mq))
                     );
