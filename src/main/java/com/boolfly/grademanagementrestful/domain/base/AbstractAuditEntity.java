@@ -16,13 +16,12 @@ import java.time.Instant;
  * and with {@link EntityListeners} to enable auditing using {@link AuditingEntityListener}.
  * The {@link CreatedDate} and {@link LastModifiedDate} annotations are used to automatically populate the audit fields.
  *
+ * @author Bao Le
  * @see MappedSuperclass
  * @see EntityListeners
  * @see AuditingEntityListener
  * @see CreatedDate
  * @see LastModifiedDate
- *
- * @author Bao Le
  */
 @Getter
 @MappedSuperclass

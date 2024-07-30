@@ -6,6 +6,7 @@ import com.boolfly.grademanagementrestful.api.dto.post.SearchPostRequest;
 import com.boolfly.grademanagementrestful.builder.base.SearchParamsBuilder;
 import com.boolfly.grademanagementrestful.builder.post.PostSearchParamsBuilder;
 import com.boolfly.grademanagementrestful.domain.Post;
+import com.boolfly.grademanagementrestful.domain.model.forum.ForumStatus;
 import com.boolfly.grademanagementrestful.domain.model.post.PostStatus;
 import com.boolfly.grademanagementrestful.exception.forum.ForumNotFoundException;
 import com.boolfly.grademanagementrestful.exception.post.PostNotFoundException;
@@ -42,8 +43,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post addPost(PostAddRequest request) {
-        return forumRepository.findById(TSID.from(request.getForumId()).toLong())
-                .map(forum -> userRepository.findById(TSID.from(request.getUserId()).toLong())
+        return forumRepository.findByIdAndStatus(TSID.from(request.getForumId()).toLong(), ForumStatus.ACTIVE)
+                .map(forum -> userRepository.findByIdAndActiveTrue(TSID.from(request.getUserId()).toLong())
                         .map(user -> postRepository.save(Post.builder()
                                 .id(TSID.fast().toLong())
                                 .title(request.getTitle())
@@ -59,7 +60,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post updatePost(PostUpdateRequest request) {
         TSID postId = TSID.from(request.getPostId());
-        return postRepository.findById(postId.toLong())
+        return postRepository.findByIdAndStatus(postId.toLong(), PostStatus.ACTIVE)
                 .map(post -> {
                     Optional.ofNullable(request.getTitle())
                             .filter(title -> !title.isEmpty() && !Objects.equals(post.getTitle(), title))
@@ -70,19 +71,15 @@ public class PostServiceImpl implements PostService {
                     Optional.ofNullable(request.getForumId())
                             .filter(frId -> !frId.isEmpty() && !Objects.equals(post.getForum().getId(), TSID.from(frId).toLong()))
                             .map(TSID::from)
-                            .map(TSID::toLong)
-                            .ifPresent(frId -> forumRepository.findById(frId)
-                                    .ifPresentOrElse(post::setForum, () -> {
-                                        throw new ForumNotFoundException(request.getForumId());
-                                    }));
+                            .map(frId -> forumRepository.findByIdAndStatus(frId.toLong(), ForumStatus.ACTIVE)
+                                    .orElseThrow(() -> new ForumNotFoundException(frId.toString())))
+                            .ifPresent(post::setForum);
                     Optional.ofNullable(request.getUserId())
                             .filter(userId -> !userId.isEmpty() && !Objects.equals(post.getUser().getId(), TSID.from(userId).toLong()))
                             .map(TSID::from)
-                            .map(TSID::toLong)
-                            .ifPresent(userId -> userRepository.findById(userId)
-                                    .ifPresentOrElse(post::setUser, () -> {
-                                        throw new UserNotFoundException(request.getUserId());
-                                    }));
+                            .map(userId -> userRepository.findByIdAndActiveTrue(userId.toLong())
+                                    .orElseThrow(() -> new UserNotFoundException(userId.toString())))
+                            .ifPresent(post::setUser);
                     return postRepository.save(post);
                 })
                 .orElseThrow(() -> new PostNotFoundException(request.getForumId()));
@@ -90,15 +87,10 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void deactivatePost(String postId) {
-        postRepository.findById(TSID.from(postId).toLong())
-                .ifPresentOrElse(post -> {
-                    if (PostStatus.INACTIVE.equals(post.getStatus())) {
-                        return;
-                    }
-                    post.setStatus(PostStatus.INACTIVE);
-                    postRepository.save(post);
-                }, () -> {
-                    throw new PostNotFoundException(postId);
-                });
+        Post post = postRepository.findByIdAndStatus(TSID.from(postId).toLong(), PostStatus.ACTIVE)
+                .orElseThrow(() -> new PostNotFoundException(postId));
+
+        post.setStatus(PostStatus.INACTIVE);
+        postRepository.save(post);
     }
 }

@@ -13,9 +13,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "User Resource")
+@Tag(name = "Student Resource")
 @Validated
-public interface UserResource {
+public interface StudentResource {
     @Operation(summary = "Create a new student")
     StudentResponse createStudent(@Valid @RequestBody StudentRegistrationRequest request);
 

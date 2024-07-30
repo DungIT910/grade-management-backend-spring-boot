@@ -11,28 +11,28 @@ import java.util.stream.Stream;
 
 import static com.boolfly.grademanagementrestful.domain.QUser.user;
 
-public final class StudentSearchParamsBuilder extends AbstractSearchParamsBuilder {
+public final class UserSearchParamsBuilder extends AbstractSearchParamsBuilder {
     private final List<RoleModel> roles;
     private final String firstName;
     private final String lastName;
-    private final String studentId;
+    private final String userId;
 
-    private StudentSearchParamsBuilder(StudentBuilder builder) {
+    private UserSearchParamsBuilder(UserBuilder builder) {
         super(builder);
         this.roles = builder.roles;
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
-        this.studentId = builder.studentId;
+        this.userId = builder.userId;
     }
 
-    public static StudentSearchParamsBuilder from(int page, int size, SearchUserRequest request) {
-        return new StudentBuilder()
+    public static UserSearchParamsBuilder from(int page, int size, SearchUserRequest request) {
+        return new UserBuilder()
                 .withPage(page)
                 .withSize(size)
                 .withRoles(request.getRoles())
                 .withFirstName(request.getFirstName())
                 .withLastName(request.getLastName())
-                .withStudentId(request.getStudentId())
+                .withUserId(request.getUserId())
                 .build();
     }
 
@@ -45,7 +45,7 @@ public final class StudentSearchParamsBuilder extends AbstractSearchParamsBuilde
                         Optional.ofNullable(lastName)
                                 .map(str -> "%" + lastName + "%")
                                 .map(user.lastName::likeIgnoreCase),
-                        Optional.ofNullable(studentId)
+                        Optional.ofNullable(userId)
                                 .map(this::toTSIDLong)
                                 .map(user.id::eq)
                 )
@@ -64,35 +64,35 @@ public final class StudentSearchParamsBuilder extends AbstractSearchParamsBuilde
                 .reduce(BooleanExpression::and);
     }
 
-    public static class StudentBuilder extends AbstractBuilder<StudentBuilder, StudentSearchParamsBuilder> {
+    public static class UserBuilder extends AbstractBuilder<UserBuilder, UserSearchParamsBuilder> {
         private List<RoleModel> roles;
         private String firstName;
         private String lastName;
-        private String studentId;
+        private String userId;
 
-        public StudentBuilder withRoles(List<RoleModel> roles) {
+        public UserBuilder withRoles(List<RoleModel> roles) {
             this.roles = roles;
             return this;
         }
 
-        public StudentBuilder withFirstName(String firstName) {
+        public UserBuilder withFirstName(String firstName) {
             this.firstName = firstName;
             return this;
         }
 
-        public StudentBuilder withLastName(String lastName) {
+        public UserBuilder withLastName(String lastName) {
             this.lastName = lastName;
             return this;
         }
 
-        public StudentBuilder withStudentId(String studentId) {
-            this.studentId = studentId;
+        public UserBuilder withUserId(String userId) {
+            this.userId = userId;
             return this;
         }
 
         @Override
-        public StudentSearchParamsBuilder build() {
-            return new StudentSearchParamsBuilder(this);
+        public UserSearchParamsBuilder build() {
+            return new UserSearchParamsBuilder(this);
         }
     }
 }

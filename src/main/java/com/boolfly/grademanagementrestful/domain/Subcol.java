@@ -1,17 +1,22 @@
 package com.boolfly.grademanagementrestful.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import com.boolfly.grademanagementrestful.domain.model.subcol.SubcolStatus;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table
 @Setter
 @Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Subcol {
     @Id
     private Long id;
     private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Course course;
+    @Enumerated(EnumType.STRING)
+    private SubcolStatus status;
 }

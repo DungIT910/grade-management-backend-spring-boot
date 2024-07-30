@@ -16,7 +16,7 @@ public final class SearchUserRequest {
     private List<RoleModel> roles;
     private String firstName;
     private String lastName;
-    private String studentId;
+    private String userId;
 
     public List<RoleModel> getRoles() {
         if (roles == null || roles.isEmpty()) {

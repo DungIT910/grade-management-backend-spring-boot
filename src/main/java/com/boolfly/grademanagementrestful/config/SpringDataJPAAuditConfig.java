@@ -9,10 +9,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
  * This class is annotated with {@link Configuration} to indicate that it is a source of bean definitions,
  * and with {@link EnableJpaAuditing} to enable JPA auditing features.
  *
+ * @author Bao Le
  * @see Configuration
  * @see EnableJpaAuditing
- *
- * @author Bao Le
  */
 @Configuration
 @EnableJpaAuditing

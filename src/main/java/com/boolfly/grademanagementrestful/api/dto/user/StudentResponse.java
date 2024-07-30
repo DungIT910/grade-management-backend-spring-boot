@@ -1,8 +1,10 @@
 package com.boolfly.grademanagementrestful.api.dto.user;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class StudentResponse {
     private String studentId;
     private String firstName;

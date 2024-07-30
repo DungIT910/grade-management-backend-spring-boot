@@ -205,4 +205,61 @@
         <addNotNullConstraint tableName="post" columnName="user_id" columnDataType="bigint"/>
         <addNotNullConstraint tableName="post" columnName="forum_id" columnDataType="bigint"/>
     </changeSet>
+    <changeSet id="constraint-unique-for-couple-student_id-and-course_id" author="DungIT910">
+        <addUniqueConstraint tableName="maingrade" columnNames="course_id, student_id"/>
+    </changeSet>
+    <changeSet id="constraint-not-null-for-student_id-and-course_id" author="DungIT910">
+        <addNotNullConstraint tableName="maingrade" columnName="student_id" columnDataType="bigint"/>
+        <addNotNullConstraint tableName="maingrade" columnName="course_id" columnDataType="bigint"/>
+    </changeSet>
+    <changeSet id="load-maingrade-masterdata" author="">
+        <loadData tableName="maingrade" file="db/changelog/masterdata/maingrade_data.csv"/>
+    </changeSet>
+    <changeSet id="add-course_id-column-to-subcol-table-and-constraint-not-null-course_id" author="DungIT910">
+        <addColumn tableName="subcol">
+            <column name="course_id" type="bigint">
+                <constraints foreignKeyName="fk_subcol_course"
+                             referencedTableName="course"
+                             referencedColumnNames="id"
+                />
+            </column>
+        </addColumn>
+        <addNotNullConstraint tableName="subcol" columnName="course_id" columnDataType="bigint"/>
+    </changeSet>
+    <changeSet id="load-subcol-masterdata" author="DungIT910">
+        <loadData tableName="subcol" file="db/changelog/masterdata/subcol_data.csv"/>
+    </changeSet>
+    <changeSet id="constraint-unique-not-null-for-couple-subcol_id-and-student_id-in-subgrade-table" author="DungIT910">
+        <addUniqueConstraint tableName="subgrade" columnNames="subcol_id, student_id"/>
+        <addNotNullConstraint tableName="subgrade" columnName="student_id" columnDataType="bigint"/>
+        <addNotNullConstraint tableName="subgrade" columnName="subcol_id" columnDataType="bigint"/>
+    </changeSet>
+    <changeSet id="load-subgrade-masterdata" author="DungIT910">
+        <loadData tableName="subgrade" file="db/changelog/masterdata/subgrade_data.csv"/>
+    </changeSet>
+    <changeSet id="add-status-column-to-subcol-maingrade-and-add-default-value-ACTIVE" author="dungit910">
+        <addColumn tableName="subcol">
+            <column name="status" type="varchar(255)"/>
+        </addColumn>
+        <addColumn tableName="maingrade">
+            <column name="status" type="varchar(255)"/>
+        </addColumn>
+        <update tableName="subcol">
+            <column name="status" value="ACTIVE"/>
+            <where>status is null</where>
+        </update>
+        <update tableName="maingrade">
+            <column name="status" value="ACTIVE"/>
+            <where>status is null</where>
+        </update>
+    </changeSet>
+    <changeSet id="add-status-column-to-subgrade" author="DungIT910">
+        <addColumn tableName="subgrade">
+            <column name="status" type="varchar(255)"/>
+        </addColumn>
+        <update tableName="subgrade">
+            <column name="status" value="ACTIVE"/>
+            <where>status is null</where>
+        </update>
+    </changeSet>
 </databaseChangeLog>

@@ -1,10 +1,19 @@
 package com.boolfly.grademanagementrestful.api.dto.general;
 
-import lombok.Data;
 
-import java.util.List;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-public class PageResponse<T> {
-    private List<T> content;
+import java.util.Collection;
+
+@NoArgsConstructor
+@Getter
+@Setter
+public class PageResponse<T> extends CollectionResponse<T> {
+    @Builder
+    public PageResponse(Collection<T> content) {
+        super(content);
+    }
 }

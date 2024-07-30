@@ -2,14 +2,15 @@ package com.boolfly.grademanagementrestful.api.dto.user;
 
 import com.boolfly.grademanagementrestful.annotation.OUMailChecker;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class StudentUpdateRequest {
-    @NotNull
-    private String studentId;
+public class StudentUpdateRequest implements UserUpdateRequest {
+    @NotBlank
+    private String id;
+    @NotBlank
     private String firstName;
+    @NotBlank
     private String lastName;
     @OUMailChecker
     @NotBlank

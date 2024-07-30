@@ -10,10 +10,9 @@ import org.springframework.context.annotation.Configuration;
  * <p>
  * This class configures the OpenAPI documentation for the Grade Management Restful API.
  *
+ * @author Bao Le
  * @see OpenAPI
  * @see Info
- *
- * @author Bao Le
  */
 @Configuration
 public class OpenAPIConfig {

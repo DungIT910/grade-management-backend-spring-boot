@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import static com.boolfly.grademanagementrestful.domain.QPost.post;
 
-public class PostSearchParamsBuilder extends AbstractSearchParamsBuilder {
+public final class PostSearchParamsBuilder extends AbstractSearchParamsBuilder {
     private final String postId;
     private final String title;
     private final String forumId;
