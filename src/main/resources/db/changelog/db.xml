@@ -262,4 +262,10 @@
             <where>status is null</where>
         </update>
     </changeSet>
+    <changeSet id="constraint-unique-for-subcol-name" author="DungIT910">
+        <addUniqueConstraint tableName="subcol" columnNames="name"/>
+    </changeSet>
+    <changeSet id="constraint-not-null-for-subcol-name" author="DungIT910">
+        <addNotNullConstraint tableName="subcol" columnName="name" columnDataType="varchar(255)"/>
+    </changeSet>
 </databaseChangeLog>

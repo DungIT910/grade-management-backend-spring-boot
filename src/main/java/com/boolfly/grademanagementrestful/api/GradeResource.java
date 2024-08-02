@@ -8,8 +8,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Grade Resource")
 public interface GradeResource {
@@ -29,4 +33,16 @@ public interface GradeResource {
 
     @Operation(summary = "Update a batch of subgrade")
     BatchResponse<SubgradeDetailsResponse> updateSubgradeBatch(@RequestBody @Valid BatchRequest<SubgradeUpdateRequest> request);
+
+    @Operation(summary = "Get a formatted-csv-file of a course")
+    HttpEntity<InputStreamResource> getSampleCSV(String courseId);
+
+    @Operation(summary = "Update student grades from a CSV file")
+    BatchResponse<GradeResponse> updateGradesFromCSV(String courseId, @RequestPart MultipartFile request);
+
+    @Operation(summary = "Generate student grades to a CSV file")
+    HttpEntity<InputStreamResource> getAllGradesCSV(String courseId);
+
+    @Operation(summary = "Generate student grades to a PDF file")
+    HttpEntity<InputStreamResource> getAllGradesPDF(String courseId);
 }

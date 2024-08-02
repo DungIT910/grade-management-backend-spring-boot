@@ -1,6 +1,7 @@
 package com.boolfly.grademanagementrestful.repository.custom.impl;
 
 import com.boolfly.grademanagementrestful.domain.model.maingrade.MaingradeStatus;
+import com.boolfly.grademanagementrestful.domain.model.subcol.SubcolStatus;
 import com.boolfly.grademanagementrestful.repository.custom.CustomSubgradeRepository;
 import com.boolfly.grademanagementrestful.repository.custom.model.PairSubgradeSubcol;
 import com.querydsl.core.Tuple;
@@ -26,7 +27,9 @@ public class CustomSubgradeRepositoryImpl implements CustomSubgradeRepository {
                 .from(maingrade)
                 .innerJoin(subcol).on(subcol.course.id.eq(maingrade.course.id))
                 .innerJoin(subgrade).on(subgrade.subcol.id.eq(subcol.id).and(subgrade.student.id.eq(maingrade.student.id)))
-                .where(subcol.course.id.eq(courseId).and(subgrade.student.id.eq(studentId).and(maingrade.status.eq(MaingradeStatus.ACTIVE))));
+                .where(subcol.course.id.eq(courseId).and(subgrade.student.id.eq(studentId)
+                        .and(maingrade.status.eq(MaingradeStatus.ACTIVE))
+                        .and(subcol.status.eq(SubcolStatus.ACTIVE))));
         return query.fetch()
                 .stream()
                 .map(t -> PairSubgradeSubcol.builder()

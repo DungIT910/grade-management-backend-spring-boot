@@ -14,4 +14,6 @@ public interface SubcolRepository extends JpaRepository<Subcol, Long>, QuerydslP
     List<Subcol> findAllByCourse_IdAndStatus(Long courseId, SubcolStatus status);
 
     Optional<Subcol> findByIdAndStatus(Long id, SubcolStatus status);
+
+    Optional<Subcol> findByNameAndStatus(String name, SubcolStatus status);
 }
