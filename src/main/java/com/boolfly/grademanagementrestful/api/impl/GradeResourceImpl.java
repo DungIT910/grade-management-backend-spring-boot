@@ -6,18 +6,22 @@ import com.boolfly.grademanagementrestful.api.dto.general.BatchResponse;
 import com.boolfly.grademanagementrestful.api.dto.general.PageResponse;
 import com.boolfly.grademanagementrestful.api.dto.grade.*;
 import com.boolfly.grademanagementrestful.domain.Maingrade;
+import com.boolfly.grademanagementrestful.exception.base.GradeManagementRuntimeException;
 import com.boolfly.grademanagementrestful.mapper.GradeMapper;
 import com.boolfly.grademanagementrestful.mapper.SubgradeMapper;
 import com.boolfly.grademanagementrestful.repository.custom.model.PairSubgradeSubcol;
 import com.boolfly.grademanagementrestful.service.GradeService;
 import com.boolfly.grademanagementrestful.service.SubgradeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -33,52 +37,152 @@ public class GradeResourceImpl implements GradeResource {
     @PostMapping("/search")
     @Override
     public PageResponse<GradeResponse> getGrades(int page, int size, SearchGradeRequest request) {
-        Page<Maingrade> pageMaingrade = gradeService.getGrades(page, size, request);
-        List<Maingrade> maingradeList = pageMaingrade.getContent();
-        Map<String, List<PairSubgradeSubcol>> mapPairSubgradeSubcol = subgradeService.getPairSubgradeSubcol(maingradeList);
+        try {
+            Page<Maingrade> pageMaingrade = gradeService.getGrades(page, size, request);
+            List<Maingrade> maingradeList = pageMaingrade.getContent();
+            Map<String, List<PairSubgradeSubcol>> mapPairSubgradeSubcol = subgradeService.getPairSubgradeSubcol(maingradeList);
 
-        return PageResponse.<GradeResponse>builder()
-                .content(maingradeList.stream()
-                        .map(gradeMapper::toGradeResponse)
-                        .map(grade -> {
-                            String maingradeId = grade.getMaingradeId();
-                            List<SubgradeResponse> subgradeResponseList = mapPairSubgradeSubcol.get(maingradeId)
-                                    .stream()
-                                    .map(subgradeMapper::toSubgradeResponse)
-                                    .toList();
-                            return grade.withSubgradeList(subgradeResponseList);
-                        })
-                        .toList())
-                .build();
+            return PageResponse.<GradeResponse>builder()
+                    .content(maingradeList.stream()
+                            .map(gradeMapper::toGradeResponse)
+                            .map(grade -> {
+                                String maingradeId = grade.getMaingradeId();
+                                List<SubgradeResponse> subgradeResponseList = mapPairSubgradeSubcol.get(maingradeId)
+                                        .stream()
+                                        .map(subgradeMapper::toSubgradeResponse)
+                                        .toList();
+                                return grade.withSubgradeList(subgradeResponseList);
+                            })
+                            .toList())
+                    .build();
+        } catch (Exception e) {
+            throw new GradeManagementRuntimeException(e);
+        }
     }
 
     @PutMapping("/maingrades")
     @Override
     public MaingradeDetailsResponse updateMaingrade(MaingradeUpdateRequest request) {
-        return gradeMapper.toMaingradeDetailsResponse(gradeService.updateMaingrade(request));
+        try {
+            return gradeMapper.toMaingradeDetailsResponse(gradeService.updateMaingrade(request));
+        } catch (Exception e) {
+            throw new GradeManagementRuntimeException(e);
+        }
     }
 
     @PutMapping("/maingrades/batch")
     @Override
     public BatchResponse<MaingradeDetailsResponse> updateMaingradeBatch(BatchRequest<MaingradeUpdateRequest> request) {
-        BatchResponse<MaingradeDetailsResponse> response = new BatchResponse<>();
-        List<MaingradeDetailsResponse> mgList = gradeService.updateMaingradeBatch(request).stream().map(gradeMapper::toMaingradeDetailsResponse).toList();
-        response.setBatch(mgList);
-        return response;
+        try {
+            BatchResponse<MaingradeDetailsResponse> response = new BatchResponse<>();
+            List<MaingradeDetailsResponse> mgList = gradeService.updateMaingradeBatch(request).stream().map(gradeMapper::toMaingradeDetailsResponse).toList();
+            response.setBatch(mgList);
+            return response;
+        } catch (Exception e) {
+            throw new GradeManagementRuntimeException(e);
+        }
     }
 
     @PutMapping("/subgrades/batch")
     @Override
     public BatchResponse<SubgradeDetailsResponse> updateSubgradeBatch(BatchRequest<SubgradeUpdateRequest> request) {
-        BatchResponse<SubgradeDetailsResponse> response = new BatchResponse<>();
-        List<SubgradeDetailsResponse> sgList = gradeService.updateSubgradeBatch(request).stream().map(gradeMapper::toSubgradeDetailsResponse).toList();
-        response.setBatch(sgList);
-        return response;
+        try {
+            BatchResponse<SubgradeDetailsResponse> response = new BatchResponse<>();
+            List<SubgradeDetailsResponse> sgList = gradeService.updateSubgradeBatch(request).stream().map(gradeMapper::toSubgradeDetailsResponse).toList();
+            response.setBatch(sgList);
+            return response;
+        } catch (Exception e) {
+            throw new GradeManagementRuntimeException(e);
+        }
+    }
+
+    @GetMapping(value = "/{courseId}/sample-grade-csv")
+    @Override
+    public HttpEntity<InputStreamResource> getSampleCSV(@PathVariable String courseId) {
+        try {
+            ByteArrayOutputStream outputStream = gradeService.getSampleGradeCSV(courseId);
+            InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(inputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=gradeInputStructure.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, "text/csv");
+
+            return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new GradeManagementRuntimeException(e);
+        }
+    }
+
+    @PutMapping(value = "/{courseId}/csv-update",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Override
+    public BatchResponse<GradeResponse> updateGradesFromCSV(@PathVariable String courseId, MultipartFile request) {
+        try {
+            List<Maingrade> maingradeList = gradeService.updateGradesCSV(courseId, request);
+            Map<String, List<PairSubgradeSubcol>> mapPairSubgradeSubcol = subgradeService.getPairSubgradeSubcol(maingradeList);
+            BatchResponse<GradeResponse> batchResponse = new BatchResponse<>();
+
+            batchResponse.setBatch(maingradeList.stream()
+                    .map(gradeMapper::toGradeResponse)
+                    .map(grade -> {
+                        String maingradeId = grade.getMaingradeId();
+                        List<SubgradeResponse> subgradeResponseList = mapPairSubgradeSubcol.get(maingradeId)
+                                .stream()
+                                .map(subgradeMapper::toSubgradeResponse)
+                                .toList();
+                        return grade.withSubgradeList(subgradeResponseList);
+                    })
+                    .toList());
+            return batchResponse;
+        } catch (Exception e) {
+            throw new GradeManagementRuntimeException(e);
+        }
+    }
+
+    @GetMapping("/{courseId}/all-grades-csv")
+    @Override
+    public HttpEntity<InputStreamResource> getAllGradesCSV(@PathVariable String courseId) {
+        try {
+            ByteArrayOutputStream outputStream = gradeService.getAllGradesCSV(courseId);
+            InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(inputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=CourseGrade.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, "text/csv");
+
+            return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new GradeManagementRuntimeException(e);
+        }
+    }
+
+    @GetMapping("/{courseId}/all-grades-pdf")
+    @Override
+    public HttpEntity<InputStreamResource> getAllGradesPDF(@PathVariable String courseId) {
+        try {
+            ByteArrayOutputStream outputStream = gradeService.getAllGradesPDF(courseId);
+            InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(inputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=CourseGrade.pdf");
+            headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
+
+            return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new GradeManagementRuntimeException(e);
+        }
     }
 
     @PutMapping("/subgrades")
     @Override
     public SubgradeDetailsResponse updateSubgrade(SubgradeUpdateRequest request) {
-        return gradeMapper.toSubgradeDetailsResponse(gradeService.updateSubgrade(request));
+        try {
+            return gradeMapper.toSubgradeDetailsResponse(gradeService.updateSubgrade(request));
+        } catch (Exception e) {
+            throw new GradeManagementRuntimeException(e);
+        }
     }
 }

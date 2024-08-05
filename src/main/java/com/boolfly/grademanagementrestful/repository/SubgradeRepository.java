@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SubgradeRepository extends JpaRepository<Subgrade, Long>, CustomSubgradeRepository {
-    Optional<Subgrade> findBySubcol_IdAndStudent_Id(Long subgradeId, Long studentId);
+    Optional<Subgrade> findBySubcol_IdAndStudent_IdAndStatus(Long subgradeId, Long studentId, SubgradeStatus status);
 
     List<Subgrade> findAllBySubcol_IdAndStatus(Long subcolId, SubgradeStatus status);
 }

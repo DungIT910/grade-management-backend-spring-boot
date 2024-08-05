@@ -5,6 +5,7 @@ import com.boolfly.grademanagementrestful.domain.model.maingrade.MaingradeStatus
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MaingradeRepository extends JpaRepository<Maingrade, Long>, QuerydslPredicateExecutor<Maingrade> {
@@ -13,4 +14,12 @@ public interface MaingradeRepository extends JpaRepository<Maingrade, Long>, Que
     Optional<Maingrade> findByCourse_IdAndStudent_IdAndStatus(Long courseId, Long studentId, MaingradeStatus status);
 
     Optional<Maingrade> findByIdAndStatus(Long maingradeId, MaingradeStatus status);
+
+    List<Maingrade> findAllByCourse_IdAndStatus(Long courseId, MaingradeStatus status);
+
+    boolean existsAllByCourse_IdAndStatus(Long courseId, MaingradeStatus status);
+
+    default boolean notExistsAllByCourse_IdAndStatus(Long courseId, MaingradeStatus status) {
+        return !existsAllByCourse_IdAndStatus(courseId, status);
+    }
 }
