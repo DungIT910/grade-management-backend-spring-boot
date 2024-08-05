@@ -16,4 +16,10 @@ public interface MaingradeRepository extends JpaRepository<Maingrade, Long>, Que
     Optional<Maingrade> findByIdAndStatus(Long maingradeId, MaingradeStatus status);
 
     List<Maingrade> findAllByCourse_IdAndStatus(Long courseId, MaingradeStatus status);
+
+    boolean existsAllByCourse_IdAndStatus(Long courseId, MaingradeStatus status);
+
+    default boolean notExistsAllByCourse_IdAndStatus(Long courseId, MaingradeStatus status) {
+        return !existsAllByCourse_IdAndStatus(courseId, status);
+    }
 }

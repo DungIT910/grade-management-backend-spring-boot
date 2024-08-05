@@ -9,7 +9,10 @@ import com.boolfly.grademanagementrestful.builder.grade.GradeSearchParamsBuilder
 import com.boolfly.grademanagementrestful.constant.GenericConstant;
 import com.boolfly.grademanagementrestful.constant.maingrade.MaingradeConstant;
 import com.boolfly.grademanagementrestful.constant.user.UserConstant;
-import com.boolfly.grademanagementrestful.domain.*;
+import com.boolfly.grademanagementrestful.domain.Maingrade;
+import com.boolfly.grademanagementrestful.domain.Subcol;
+import com.boolfly.grademanagementrestful.domain.Subgrade;
+import com.boolfly.grademanagementrestful.domain.User;
 import com.boolfly.grademanagementrestful.domain.model.course.CourseStatus;
 import com.boolfly.grademanagementrestful.domain.model.maingrade.MaingradeStatus;
 import com.boolfly.grademanagementrestful.domain.model.subcol.SubcolStatus;
@@ -49,7 +52,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -165,11 +167,11 @@ public class GradeServiceImpl implements GradeService {
     public ByteArrayOutputStream getSampleGradeCSV(String courseId) {
         Long courseLongId = TSID.from(courseId).toLong();
 
-        if (courseRepository.findByIdAndStatus(courseLongId, CourseStatus.ACTIVE).isEmpty()) {
+        if (courseRepository.notExistsByIdAndStatus(courseLongId, CourseStatus.ACTIVE)) {
             throw new CourseNotFoundException(courseId);
         }
 
-        if (maingradeRepository.findAllByCourse_IdAndStatus(courseLongId, MaingradeStatus.ACTIVE).isEmpty()) {
+        if (maingradeRepository.notExistsAllByCourse_IdAndStatus(courseLongId, MaingradeStatus.ACTIVE)) {
             throw new MaingradeNotFoundException();
         }
 
@@ -181,7 +183,7 @@ public class GradeServiceImpl implements GradeService {
                     .build();
 
             List<String> fieldNames = new ArrayList<>(List.of(
-                    MaingradeConstant.MAINGRADEID_CSV_FIELD
+                    MaingradeConstant.MAINGRADE_ID
             ));
 
             fieldNames.addAll(getGenericFieldNames(courseLongId));
@@ -201,36 +203,31 @@ public class GradeServiceImpl implements GradeService {
         Long courseLongId = TSID.from(courseId).toLong();
         List<Maingrade> maingradeList = new ArrayList<>();
 
-        if (courseRepository.findByIdAndStatus(courseLongId, CourseStatus.ACTIVE).isEmpty()) {
+        if (courseRepository.notExistsByIdAndStatus(courseLongId, CourseStatus.ACTIVE)) {
             throw new CourseNotFoundException(courseId);
         }
 
-        Set<String> scNameSet = subcolRepository
-                .findAllByCourse_IdAndStatus(courseLongId, SubcolStatus.ACTIVE)
-                .stream().map(Subcol::getName)
-                .collect(Collectors.toSet());
+        List<Subcol> subcolList = subcolRepository
+                .findAllByCourse_IdAndStatus(courseLongId, SubcolStatus.ACTIVE);
 
         try (CSVReaderHeaderAware csvReader = new CSVReaderHeaderAware(new InputStreamReader(request.getInputStream()))) {
             Map<String, String> line;
             while ((line = csvReader.readMap()) != null) {
-                Long maingradeId = TSID.from(line.get(MaingradeConstant.MAINGRADEID_CSV_FIELD)).toLong();
-                Double midtermGrade = parseDouble(line.get(MaingradeConstant.MIDTERMGRADE_CSV_FIELD));
-                Double finalGrade = parseDouble(line.get(MaingradeConstant.FINALGRADE_CSV_FIELD));
+                Long maingradeId = TSID.from(line.get(MaingradeConstant.MAINGRADE_ID)).toLong();
+                Double midtermGrade = parseDouble(line.get(MaingradeConstant.MIDTERM_GRADE));
+                Double finalGrade = parseDouble(line.get(MaingradeConstant.FINAL_GRADE));
 
-                Maingrade maingrade = maingradeRepository.findByIdAndStatus(maingradeId, MaingradeStatus.ACTIVE)
+                Maingrade maingrade = maingradeRepository
+                        .findByIdAndStatus(maingradeId, MaingradeStatus.ACTIVE)
                         .orElseThrow(MaingradeNotFoundException::new);
                 maingrade.setMidtermGrade(midtermGrade);
                 maingrade.setFinalGrade(finalGrade);
                 maingradeList.add(maingradeRepository.save(maingrade));
 
-                for (String scName : scNameSet) {
-                    Subcol subcol = subcolRepository.findByNameAndStatus(scName, SubcolStatus.ACTIVE)
-                            .orElseThrow(() -> new SubcolNotFoundException(scName));
-                    User user = userRepository.findByIdAndActiveTrue(maingrade.getStudent().getId())
-                            .orElseThrow(StudentNotFoundException::new);
-
-                    Double subgradeValue = parseDouble(line.get(scName));
-                    addOrUpdateSubgrade(subcol, user, subgradeValue);
+                User student = maingrade.getStudent();
+                for (Subcol subcol : subcolList) {
+                    Double subgradeValue = parseDouble(line.get(subcol.getName()));
+                    addOrUpdateSubgrade(subcol, student, subgradeValue);
                 }
             }
         } catch (IOException | CsvValidationException e) {
@@ -243,11 +240,11 @@ public class GradeServiceImpl implements GradeService {
     public ByteArrayOutputStream getAllGradesCSV(String courseId) {
         Long courseLongId = TSID.from(courseId).toLong();
 
-        if (courseRepository.findByIdAndStatus(courseLongId, CourseStatus.ACTIVE).isEmpty()) {
+        if (courseRepository.notExistsByIdAndStatus(courseLongId, CourseStatus.ACTIVE)) {
             throw new CourseNotFoundException(courseId);
         }
 
-        if (maingradeRepository.findAllByCourse_IdAndStatus(courseLongId, MaingradeStatus.ACTIVE).isEmpty()) {
+        if (maingradeRepository.notExistsAllByCourse_IdAndStatus(courseLongId, MaingradeStatus.ACTIVE)) {
             throw new MaingradeNotFoundException();
         }
 
@@ -291,10 +288,9 @@ public class GradeServiceImpl implements GradeService {
     public ByteArrayOutputStream getAllGradesPDF(String courseId) {
         Long courseLongId = TSID.from(courseId).toLong();
         String courseName = courseRepository
-                .findByIdAndStatus(courseLongId, CourseStatus.ACTIVE)
-                .map(Course::getName)
+                .findNameByIdAndStatus(courseLongId, CourseStatus.ACTIVE)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
-        if (maingradeRepository.findAllByCourse_IdAndStatus(courseLongId, MaingradeStatus.ACTIVE).isEmpty()) {
+        if (maingradeRepository.notExistsAllByCourse_IdAndStatus(courseLongId, MaingradeStatus.ACTIVE)) {
             throw new MaingradeNotFoundException();
         }
         try {
@@ -321,7 +317,13 @@ public class GradeServiceImpl implements GradeService {
                     .setTextAlignment(TextAlignment.CENTER)
                     .setHorizontalAlignment(HorizontalAlignment.CENTER);
 
-            fieldNames.forEach(column -> table.addHeaderCell(new Cell().add(new Paragraph(column).setFontSize(9).setBold())));
+            fieldNames.forEach(column -> {
+                Paragraph paragraph = new Paragraph(column)
+                        .setFontSize(9)
+                        .setBold();
+                Cell cell = new Cell().add(paragraph);
+                table.addHeaderCell(cell);
+            });
 
             List<Map<String, String>> gradeRecords = getGradeRecords(courseLongId);
 
@@ -342,10 +344,11 @@ public class GradeServiceImpl implements GradeService {
     }
 
     private Double parseDouble(String value) {
-        return Optional.ofNullable(value)
-                .filter(v -> !v.trim().isEmpty())
-                .map(Double::valueOf)
-                .orElse(null);
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+
+        return Double.valueOf(value);
     }
 
     private List<Map<String, String>> getGradeRecords(Long courseLongId) {
@@ -354,24 +357,38 @@ public class GradeServiceImpl implements GradeService {
 
         maingradeRepository.findAllByCourse_IdAndStatus(courseLongId, MaingradeStatus.ACTIVE)
                 .forEach(mg -> {
+                    User student = mg.getStudent();
                     Map<String, String> gradeRecord = new HashMap<>();
                     gradeRecord.put(GenericConstant.INDEX, String.valueOf(index.get()));
-                    gradeRecord.put(UserConstant.STUDENT_ID, TSID.from(mg.getStudent().getId()).toString());
-                    gradeRecord.put(UserConstant.LAST_NAME, mg.getStudent().getLastName());
-                    gradeRecord.put(UserConstant.FIRST_NAME, mg.getStudent().getFirstName());
-                    gradeRecord.put(MaingradeConstant.MIDTERMGRADE_CSV_FIELD, mg.getMidtermGrade() != null ? String.valueOf(mg.getMidtermGrade()) : "");
-                    gradeRecord.put(MaingradeConstant.FINALGRADE_CSV_FIELD, mg.getFinalGrade() != null ? String.valueOf(mg.getFinalGrade()) : "");
+                    gradeRecord.put(UserConstant.STUDENT_ID, TSID.from(student.getId()).toString());
+                    gradeRecord.put(UserConstant.LAST_NAME, student.getLastName());
+                    gradeRecord.put(UserConstant.FIRST_NAME, student.getFirstName());
+                    gradeRecord.put(
+                            MaingradeConstant.MIDTERM_GRADE,
+                            Optional.ofNullable(mg.getMidtermGrade())
+                                    .map(Objects::toString)
+                                    .orElse("")
+                    );
+                    gradeRecord.put(
+                            MaingradeConstant.FINAL_GRADE,
+                            Optional.ofNullable(mg.getFinalGrade())
+                                    .map(Objects::toString)
+                                    .orElse("")
+                    );
 
-                    subcolRepository.findAllByCourse_IdAndStatus(courseLongId, SubcolStatus.ACTIVE).forEach(subcol -> {
-                        String subcolName = subcol.getName();
-                        String grade = subgradeRepository.findBySubcol_IdAndStudent_IdAndStatus(
-                                        subcol.getId(),
-                                        mg.getStudent().getId(),
-                                        SubgradeStatus.ACTIVE
-                                ).map(sg -> sg.getGrade() != null ? String.valueOf(sg.getGrade()) : "")
-                                .orElse("");
-                        gradeRecord.put(subcolName, grade);
-                    });
+                    subcolRepository.findAllByCourse_IdAndStatus(courseLongId, SubcolStatus.ACTIVE)
+                            .forEach(subcol -> {
+                                String subcolName = subcol.getName();
+                                String grade = subgradeRepository.findBySubcol_IdAndStudent_IdAndStatus(
+                                                subcol.getId(),
+                                                student.getId(),
+                                                SubgradeStatus.ACTIVE
+                                        )
+                                        .map(Subgrade::getGrade)
+                                        .map(Objects::toString)
+                                        .orElse("");
+                                gradeRecord.put(subcolName, grade);
+                            });
 
                     gradeRecords.add(gradeRecord);
                     index.getAndIncrement();
@@ -382,8 +399,8 @@ public class GradeServiceImpl implements GradeService {
 
     private List<String> getGenericFieldNames(Long courseId) {
         List<String> fieldNames = new ArrayList<>(List.of(
-                MaingradeConstant.MIDTERMGRADE_CSV_FIELD,
-                MaingradeConstant.FINALGRADE_CSV_FIELD
+                MaingradeConstant.MIDTERM_GRADE,
+                MaingradeConstant.FINAL_GRADE
         ));
         subcolRepository.findAllByCourse_IdAndStatus(courseId, SubcolStatus.ACTIVE)
                 .stream()

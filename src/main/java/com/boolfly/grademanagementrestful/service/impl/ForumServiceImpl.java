@@ -85,7 +85,7 @@ public class ForumServiceImpl implements ForumService {
     public void deactivateForum(String forumId) {
         Long forumIdAsLong = TSID.from(forumId).toLong();
         Forum forum = forumRepository.findByIdAndStatus(forumIdAsLong, ForumStatus.ACTIVE)
-                        .orElseThrow(() -> new ForumNotFoundException(forumId));
+                .orElseThrow(() -> new ForumNotFoundException(forumId));
 
         forum.setStatus(ForumStatus.INACTIVE);
         forumRepository.save(forum);
