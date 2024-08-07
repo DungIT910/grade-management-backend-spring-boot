@@ -13,4 +13,5 @@ public class MaingradeDetailsResponse {
     private Double finalGrade;
     private String courseId;
     private String courseName;
+    private String status;
 }

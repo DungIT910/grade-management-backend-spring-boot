@@ -20,4 +20,5 @@ public class GradeResponse {
     private List<SubgradeResponse> subgradeList;
     private String courseId;
     private String courseName;
+    private String status;
 }

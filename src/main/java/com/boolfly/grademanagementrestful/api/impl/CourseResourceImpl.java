@@ -15,7 +15,9 @@ import com.boolfly.grademanagementrestful.mapper.CourseMapper;
 import com.boolfly.grademanagementrestful.mapper.SubcolMapper;
 import com.boolfly.grademanagementrestful.mapper.UserMapper;
 import com.boolfly.grademanagementrestful.service.CourseService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,11 +26,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/courses")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseResourceImpl implements CourseResource {
-    private static final CourseMapper courseMapper = CourseMapper.INSTANCE;
-    private static final SubcolMapper subcolMapper = SubcolMapper.INSTANCE;
-    private static final UserMapper userMapper = UserMapper.INSTANCE;
-    private final CourseService courseService;
+    static final CourseMapper courseMapper = CourseMapper.INSTANCE;
+    static final SubcolMapper subcolMapper = SubcolMapper.INSTANCE;
+    static final UserMapper userMapper = UserMapper.INSTANCE;
+    final CourseService courseService;
 
     @PostMapping("/search")
     @Override

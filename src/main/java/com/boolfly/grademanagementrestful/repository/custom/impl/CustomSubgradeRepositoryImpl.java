@@ -28,8 +28,8 @@ public class CustomSubgradeRepositoryImpl implements CustomSubgradeRepository {
                 .innerJoin(subcol).on(subcol.course.id.eq(maingrade.course.id))
                 .innerJoin(subgrade).on(subgrade.subcol.id.eq(subcol.id).and(subgrade.student.id.eq(maingrade.student.id)))
                 .where(subcol.course.id.eq(courseId).and(subgrade.student.id.eq(studentId)
-                        .and(maingrade.status.eq(MaingradeStatus.ACTIVE))
-                        .and(subcol.status.eq(SubcolStatus.ACTIVE))));
+                        .and(maingrade.status.ne(MaingradeStatus.INACTIVE))
+                        .and(subcol.status.ne(SubcolStatus.INACTIVE))));
         return query.fetch()
                 .stream()
                 .map(t -> PairSubgradeSubcol.builder()

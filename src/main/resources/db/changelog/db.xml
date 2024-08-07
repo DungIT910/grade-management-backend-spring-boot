@@ -273,4 +273,7 @@
         <modifyDataType tableName="maingrade" columnName="final_grade" newDataType="decimal(4,2)"/>
         <modifyDataType tableName="subgrade" columnName="grade" newDataType="decimal(4,2)"/>
     </changeSet>
+    <changeSet id="drop-status-field-of-subgrade-table" author="DungIT910">
+        <dropColumn tableName="subgrade" columnName="status"/>
+    </changeSet>
 </databaseChangeLog>

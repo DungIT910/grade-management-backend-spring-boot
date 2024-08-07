@@ -17,9 +17,21 @@ public interface MaingradeRepository extends JpaRepository<Maingrade, Long>, Que
 
     List<Maingrade> findAllByCourse_IdAndStatus(Long courseId, MaingradeStatus status);
 
-    boolean existsAllByCourse_IdAndStatus(Long courseId, MaingradeStatus status);
+    Optional<Maingrade> findByIdAndStatusNot(Long maingradeId, MaingradeStatus status);
 
-    default boolean notExistsAllByCourse_IdAndStatus(Long courseId, MaingradeStatus status) {
-        return !existsAllByCourse_IdAndStatus(courseId, status);
+    Optional<Maingrade> findByCourse_IdAndStudent_IdAndStatusNot(Long courseId, Long studentId, MaingradeStatus status);
+
+    List<Maingrade> findAllByCourse_IdAndStatusNot(Long courseId, MaingradeStatus status);
+
+    boolean existsAllByCourse_IdAndStatusNot(Long courseId, MaingradeStatus status);
+
+    default boolean notExistsAllByCourse_IdAndStatusNot(Long courseId, MaingradeStatus status) {
+        return !existsAllByCourse_IdAndStatusNot(courseId, status);
+    }
+
+    boolean existsAllByCourse_IdAndStudent_IdAndStatus(Long courseId, Long studentId, MaingradeStatus status);
+
+    default boolean notExistsAllByCourse_IdAndStudent_IdAndStatus(Long courseId, Long studentId, MaingradeStatus status) {
+        return !existsAllByCourse_IdAndStudent_IdAndStatus(courseId, studentId, status);
     }
 }

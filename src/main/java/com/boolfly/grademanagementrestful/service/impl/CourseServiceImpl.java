@@ -150,7 +150,7 @@ public class CourseServiceImpl implements CourseService {
     public void deactivateStudent(String courseId, String studentId) {
         Long courseID = TSID.from(courseId).toLong();
         Long studentID = TSID.from(studentId).toLong();
-        maingradeRepository.findByCourse_IdAndStudent_IdAndStatus(courseID, studentID, MaingradeStatus.ACTIVE)
+        maingradeRepository.findByCourse_IdAndStudent_IdAndStatusNot(courseID, studentID, MaingradeStatus.INACTIVE)
                 .ifPresent(maingrade -> {
                     maingrade.setStatus(MaingradeStatus.INACTIVE);
                     maingradeRepository.save(maingrade);
@@ -159,7 +159,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<Subcol> getSubcols(String courseId) {
-        return courseRepository.findByIdAndStatus(TSID.from(courseId).toLong(), CourseStatus.ACTIVE)
+        return courseRepository.findByIdAndStatusNot(TSID.from(courseId).toLong(), CourseStatus.INACTIVE)
                 .map(course -> subcolRepository.findAllByCourse_IdAndStatus(course.getId(), SubcolStatus.ACTIVE))
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
     }
