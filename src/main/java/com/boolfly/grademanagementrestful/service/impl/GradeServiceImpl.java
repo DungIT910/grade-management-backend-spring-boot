@@ -9,13 +9,9 @@ import com.boolfly.grademanagementrestful.builder.grade.GradeSearchParamsBuilder
 import com.boolfly.grademanagementrestful.constant.GenericConstant;
 import com.boolfly.grademanagementrestful.constant.maingrade.MaingradeConstant;
 import com.boolfly.grademanagementrestful.constant.user.UserConstant;
-import com.boolfly.grademanagementrestful.domain.Maingrade;
-import com.boolfly.grademanagementrestful.domain.Subcol;
-import com.boolfly.grademanagementrestful.domain.Subgrade;
-import com.boolfly.grademanagementrestful.domain.User;
+import com.boolfly.grademanagementrestful.domain.*;
 import com.boolfly.grademanagementrestful.domain.model.course.CourseStatus;
 import com.boolfly.grademanagementrestful.domain.model.maingrade.MaingradeStatus;
-import com.boolfly.grademanagementrestful.domain.model.role.RoleModel;
 import com.boolfly.grademanagementrestful.domain.model.subcol.SubcolStatus;
 import com.boolfly.grademanagementrestful.exception.base.GradeManagementRuntimeException;
 import com.boolfly.grademanagementrestful.exception.course.CourseNotFoundException;
@@ -93,25 +89,26 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public Subgrade updateSubgrade(SubgradeUpdateRequest request) {
-        String subcolStringId = TSID.from(request.getSubcolId()).toString();
-        Long subcolLongId = TSID.from(request.getSubcolId()).toLong();
+        TSID subcolId = TSID.from(request.getSubcolId());
         Long studentLongId = TSID.from(request.getStudentId()).toLong();
 
-        Subcol subcol = subcolRepository.findByIdAndStatus(subcolLongId, SubcolStatus.ACTIVE)
-                .orElseThrow(() -> new SubcolNotFoundException(subcolStringId));
+        Subcol subcol = subcolRepository.findByIdAndStatus(subcolId.toLong(), SubcolStatus.ACTIVE)
+                .orElseThrow(() -> new SubcolNotFoundException(subcolId.toString()));
 
         User student = userRepository.findByIdAndActiveTrue(studentLongId)
                 .orElseThrow(StudentNotFoundException::new);
 
+        Course course = subcol.getCourse();
+        Long courseId = course.getId();
         if (maingradeRepository.notExistsByCourse_IdAndStudent_IdAndStatusNot(
-                subcol.getCourse().getId(),
+                courseId,
                 studentLongId,
                 MaingradeStatus.INACTIVE)) {
             throw new MaingradeNotFoundException();
         }
 
         if (maingradeRepository.existsByCourse_IdAndStudent_IdAndStatus(
-                subcol.getCourse().getId(),
+                courseId,
                 studentLongId,
                 MaingradeStatus.LOCKED)) {
             throw new LockedGradeException();
@@ -180,34 +177,7 @@ public class GradeServiceImpl implements GradeService {
                 .orElseGet(List::of);
         List<Subgrade> subgradeList = new ArrayList<>();
 
-        batch.forEach(sub -> {
-            Long subcolLongId = TSID.from(sub.getSubcolId()).toLong();
-            String subcolStringId = TSID.from(sub.getSubcolId()).toString();
-            Long studentLongId = TSID.from(sub.getStudentId()).toLong();
-
-            Subcol subcol = subcolRepository.findByIdAndStatus(subcolLongId, SubcolStatus.ACTIVE)
-                    .orElseThrow(() -> new SubcolNotFoundException(subcolStringId));
-            User student = userRepository.findByIdAndActiveTrueAndRole_Name(
-                    studentLongId,
-                    RoleModel.ROLE_STUDENT.getRoleName()
-            ).orElseThrow(StudentNotFoundException::new);
-
-            if (maingradeRepository.notExistsByCourse_IdAndStudent_IdAndStatusNot(
-                    subcol.getCourse().getId(),
-                    studentLongId,
-                    MaingradeStatus.INACTIVE)) {
-                throw new MaingradeNotFoundException();
-            }
-
-            if (maingradeRepository.existsByCourse_IdAndStudent_IdAndStatus(
-                    subcol.getCourse().getId(),
-                    studentLongId,
-                    MaingradeStatus.LOCKED)) {
-                throw new LockedGradeException();
-            }
-
-            addOrUpdateSubgrade(subcol, student, sub.getGrade());
-        });
+        batch.forEach(this::updateSubgrade);
         return subgradeList;
     }
 
