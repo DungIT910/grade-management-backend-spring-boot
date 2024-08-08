@@ -33,6 +33,5 @@ public class EmailSenderService {
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
-
     }
 }

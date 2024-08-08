@@ -58,7 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 @RequiredArgsConstructor
 public class GradeServiceImpl implements GradeService {
-    final ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private final MaingradeRepository maingradeRepository;
     private final SubgradeRepository subgradeRepository;
     private final SubcolRepository subcolRepository;
@@ -103,14 +103,18 @@ public class GradeServiceImpl implements GradeService {
         User student = userRepository.findByIdAndActiveTrue(studentLongId)
                 .orElseThrow(StudentNotFoundException::new);
 
-        Maingrade mg = maingradeRepository.findByCourse_IdAndStudent_IdAndStatusNot(
-                        subcol.getCourse().getId(),
-                        studentLongId,
-                        MaingradeStatus.INACTIVE)
-                .orElseThrow(MaingradeNotFoundException::new);
+        if (maingradeRepository.notExistsByCourse_IdAndStudent_IdAndStatusNot(
+                subcol.getCourse().getId(),
+                studentLongId,
+                MaingradeStatus.INACTIVE)) {
+            throw new MaingradeNotFoundException();
+        }
 
-        if (mg.getStatus() == MaingradeStatus.LOCKED) {
-            throw new LockedGradeException(TSID.from(mg.getId()).toString());
+        if (maingradeRepository.existsByCourse_IdAndStudent_IdAndStatus(
+                subcol.getCourse().getId(),
+                studentLongId,
+                MaingradeStatus.LOCKED)) {
+            throw new LockedGradeException();
         }
 
         return addOrUpdateSubgrade(subcol, student, request.getGrade());
@@ -148,7 +152,7 @@ public class GradeServiceImpl implements GradeService {
                                               Double finalGrade,
                                               boolean locked) {
         if (MaingradeStatus.LOCKED.equals(mg.getStatus())) {
-            throw new LockedGradeException(TSID.from(mg.getId()).toString());
+            throw new LockedGradeException();
         }
 
         mg.setMidtermGrade(midtermGrade);
@@ -157,7 +161,14 @@ public class GradeServiceImpl implements GradeService {
         if (locked) {
             String courseName = mg.getCourse().getName();
             String toEmail = mg.getStudent().getEmail();
-            eventPublisher.publishEvent(new MailEvent(this, courseName, toEmail));
+            eventPublisher.publishEvent(
+                    MailEvent
+                            .builder()
+                            .source(this)
+                            .courseName(courseName)
+                            .toEmail(toEmail)
+                            .build()
+            );
             mg.setStatus(MaingradeStatus.LOCKED);
         }
         return mg;
@@ -181,13 +192,18 @@ public class GradeServiceImpl implements GradeService {
                     RoleModel.ROLE_STUDENT.getRoleName()
             ).orElseThrow(StudentNotFoundException::new);
 
-            Maingrade mg = maingradeRepository.findByCourse_IdAndStudent_IdAndStatusNot(
-                            subcol.getCourse().getId(),
-                            studentLongId,
-                            MaingradeStatus.INACTIVE)
-                    .orElseThrow(MaingradeNotFoundException::new);
-            if (mg.getStatus() == MaingradeStatus.LOCKED) {
-                throw new LockedGradeException(TSID.from(mg.getId()).toString());
+            if (maingradeRepository.notExistsByCourse_IdAndStudent_IdAndStatusNot(
+                    subcol.getCourse().getId(),
+                    studentLongId,
+                    MaingradeStatus.INACTIVE)) {
+                throw new MaingradeNotFoundException();
+            }
+
+            if (maingradeRepository.existsByCourse_IdAndStudent_IdAndStatus(
+                    subcol.getCourse().getId(),
+                    studentLongId,
+                    MaingradeStatus.LOCKED)) {
+                throw new LockedGradeException();
             }
 
             addOrUpdateSubgrade(subcol, student, sub.getGrade());
@@ -199,20 +215,18 @@ public class GradeServiceImpl implements GradeService {
         Long studentLongId = student.getId();
         Long subcolLongId = subcol.getId();
 
-        return subgradeRepository.findBySubcol_IdAndStudent_Id(subcolLongId, studentLongId)
-                .map(subgrade -> {
-                    subgrade.setGrade(grade);
-                    return subgradeRepository.save(subgrade);
-                })
+        Subgrade subgrade = subgradeRepository.findBySubcol_IdAndStudent_Id(subcolLongId, studentLongId)
                 .orElseGet(() -> subgradeRepository.save(
                                 Subgrade.builder()
                                         .id(TSID.fast().toLong())
                                         .subcol(subcol)
                                         .student(student)
-                                        .grade(grade)
                                         .build()
                         )
                 );
+        subgrade.setGrade(grade);
+
+        return subgradeRepository.save(subgrade);
     }
 
     @Override
@@ -223,7 +237,7 @@ public class GradeServiceImpl implements GradeService {
             throw new CourseNotFoundException(courseId);
         }
 
-        if (maingradeRepository.notExistsAllByCourse_IdAndStatusNot(courseLongId, MaingradeStatus.INACTIVE)) {
+        if (maingradeRepository.notExistsByCourse_IdAndStatusNot(courseLongId, MaingradeStatus.INACTIVE)) {
             throw new MaingradeNotFoundException();
         }
 
@@ -299,7 +313,7 @@ public class GradeServiceImpl implements GradeService {
             throw new CourseNotFoundException(courseId);
         }
 
-        if (maingradeRepository.notExistsAllByCourse_IdAndStatusNot(courseLongId, MaingradeStatus.INACTIVE)) {
+        if (maingradeRepository.notExistsByCourse_IdAndStatusNot(courseLongId, MaingradeStatus.INACTIVE)) {
             throw new MaingradeNotFoundException();
         }
 
@@ -347,7 +361,7 @@ public class GradeServiceImpl implements GradeService {
                 .findNameByIdAndStatus(courseLongId, CourseStatus.ACTIVE)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
 
-        if (maingradeRepository.notExistsAllByCourse_IdAndStatusNot(courseLongId, MaingradeStatus.INACTIVE)) {
+        if (maingradeRepository.notExistsByCourse_IdAndStatusNot(courseLongId, MaingradeStatus.INACTIVE)) {
             throw new MaingradeNotFoundException();
         }
 
