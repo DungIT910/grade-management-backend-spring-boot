@@ -38,7 +38,7 @@ public final class GradeSearchParamsBuilder extends AbstractSearchParamsBuilder 
                         Optional.ofNullable(studentId)
                                 .map(this::toTSIDLong)
                                 .map(maingrade.student.id::eq),
-                        Optional.of(maingrade.status.eq(MaingradeStatus.ACTIVE))
+                        Optional.of(maingrade.status.ne(MaingradeStatus.INACTIVE))
                 ).filter(Optional::isPresent).map(Optional::get)
                 .reduce(BooleanExpression::and);
     }

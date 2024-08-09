@@ -1,6 +1,5 @@
 package com.boolfly.grademanagementrestful.domain;
 
-import com.boolfly.grademanagementrestful.domain.model.subgrade.SubgradeStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +18,4 @@ public class Subgrade {
     @ManyToOne(fetch = FetchType.LAZY)
     private User student;
     private Double grade;
-    @Enumerated(EnumType.STRING)
-    private SubgradeStatus status;
 }

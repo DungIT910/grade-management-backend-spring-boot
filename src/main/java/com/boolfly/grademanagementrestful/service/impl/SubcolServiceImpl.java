@@ -9,13 +9,11 @@ import com.boolfly.grademanagementrestful.domain.Course;
 import com.boolfly.grademanagementrestful.domain.Subcol;
 import com.boolfly.grademanagementrestful.domain.model.course.CourseStatus;
 import com.boolfly.grademanagementrestful.domain.model.subcol.SubcolStatus;
-import com.boolfly.grademanagementrestful.domain.model.subgrade.SubgradeStatus;
 import com.boolfly.grademanagementrestful.exception.course.CourseNotFoundException;
 import com.boolfly.grademanagementrestful.exception.subcol.SubcolLimitException;
 import com.boolfly.grademanagementrestful.exception.subcol.SubcolNotFoundException;
 import com.boolfly.grademanagementrestful.repository.CourseRepository;
 import com.boolfly.grademanagementrestful.repository.SubcolRepository;
-import com.boolfly.grademanagementrestful.repository.SubgradeRepository;
 import com.boolfly.grademanagementrestful.service.SubcolService;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.hypersistence.tsid.TSID;
@@ -32,7 +30,6 @@ import java.util.Optional;
 public class SubcolServiceImpl implements SubcolService {
     private final CourseRepository courseRepository;
     private final SubcolRepository subcolRepository;
-    private final SubgradeRepository subgradeRepository;
 
     @Override
     public Page<Subcol> getSubcols(int page, int size, SearchSubcolRequest request) {
@@ -47,7 +44,7 @@ public class SubcolServiceImpl implements SubcolService {
     public Subcol addSubcol(SubcolAddRequest request) {
         String courseIdAsString = request.getCourseId();
         Long courseId = TSID.from(courseIdAsString).toLong();
-        Course course = courseRepository.findByIdAndStatus(courseId, CourseStatus.ACTIVE)
+        Course course = courseRepository.findByIdAndStatusNot(courseId, CourseStatus.INACTIVE)
                 .orElseThrow(() -> new CourseNotFoundException(courseIdAsString));
 
         if (subcolRepository.countByCourseIdAndStatus(courseId, SubcolStatus.ACTIVE) >= 3) {
@@ -78,16 +75,9 @@ public class SubcolServiceImpl implements SubcolService {
     @Override
     public void deactivateSubcol(String subcolId) {
         Subcol subcol = subcolRepository.findByIdAndStatus(TSID.from(subcolId).toLong(), SubcolStatus.ACTIVE)
-                .map(sc -> {
-                    sc.setStatus(SubcolStatus.INACTIVE);
-                    return subcolRepository.save(sc);
-                })
                 .orElseThrow(() -> new SubcolNotFoundException(subcolId));
 
-        subgradeRepository.findAllBySubcol_IdAndStatus(subcol.getId(), SubgradeStatus.ACTIVE)
-                .forEach(sg -> {
-                    sg.setStatus(SubgradeStatus.INACTIVE);
-                    subgradeRepository.save(sg);
-                });
+        subcol.setStatus(SubcolStatus.INACTIVE);
+        subcolRepository.save(subcol);
     }
 }

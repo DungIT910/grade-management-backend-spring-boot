@@ -1,5 +1,6 @@
 package com.boolfly.grademanagementrestful.api.dto.grade;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
@@ -7,10 +8,10 @@ import lombok.Getter;
 public class MaingradeUpdateRequest {
     @NotNull
     private String maingradeId;
-    private boolean updatedMidtermGrade;
-    private boolean updateFinalGrade;
     private Double midtermGrade;
     private Double finalGrade;
+    @JsonProperty(defaultValue = "false")
+    private boolean locked;
 
     @Override
     public String toString() {

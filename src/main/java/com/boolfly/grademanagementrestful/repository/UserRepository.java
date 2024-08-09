@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>, QuerydslPredicateExecutor<User> {
-    Optional<User> findByEmail(String email);
-
     Optional<User> findByIdAndActiveTrue(Long id);
 
     List<User> findAllByIdInAndActiveTrue(List<Long> ids);

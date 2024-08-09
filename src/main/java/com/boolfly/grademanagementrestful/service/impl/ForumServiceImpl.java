@@ -44,7 +44,7 @@ public class ForumServiceImpl implements ForumService {
     @Override
     public Forum addForum(ForumAddRequest request) {
         TSID courseId = TSID.from(request.getCourseId());
-        return courseRepository.findByIdAndStatus(courseId.toLong(), CourseStatus.ACTIVE)
+        return courseRepository.findByIdAndStatusNot(courseId.toLong(), CourseStatus.INACTIVE)
                 .map(c -> forumRepository.save(
                         Forum.builder()
                                 .id(TSID.fast().toLong())
@@ -72,7 +72,7 @@ public class ForumServiceImpl implements ForumService {
                             .filter(courseId -> !courseId.isEmpty())
                             .map(TSID::from)
                             .filter(courseId -> !Objects.equals(forum.getCourse().getId(), courseId.toLong()))
-                            .map(courseId -> courseRepository.findByIdAndStatus(courseId.toLong(), CourseStatus.ACTIVE)
+                            .map(courseId -> courseRepository.findByIdAndStatusNot(courseId.toLong(), CourseStatus.INACTIVE)
                                     .orElseThrow(() -> new CourseNotFoundException(courseId.toString())))
                             .ifPresent(forum::setCourse);
                     return forum;
