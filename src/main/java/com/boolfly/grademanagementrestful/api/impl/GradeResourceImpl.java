@@ -104,7 +104,7 @@ public class GradeResourceImpl implements GradeResource {
     @Override
     public HttpEntity<InputStreamResource> getSampleCSV(@PathVariable String courseId) {
         try {
-            ByteArrayOutputStream outputStream = csvService.getSampleGradeCSV(courseId);
+            ByteArrayOutputStream outputStream = csvService.getSampleGradeCSV(courseId, gradeService);
             InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
             InputStreamResource resource = new InputStreamResource(inputStream);
 
@@ -148,7 +148,7 @@ public class GradeResourceImpl implements GradeResource {
     @Override
     public HttpEntity<InputStreamResource> getAllGradesCSV(@PathVariable String courseId) {
         try {
-            ByteArrayOutputStream outputStream = csvService.getAllGradesCSV(courseId);
+            ByteArrayOutputStream outputStream = csvService.getAllGradesCSV(courseId, gradeService);
             InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
             InputStreamResource resource = new InputStreamResource(inputStream);
 

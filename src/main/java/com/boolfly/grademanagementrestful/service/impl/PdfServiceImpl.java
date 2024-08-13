@@ -8,8 +8,6 @@ import com.boolfly.grademanagementrestful.exception.course.CourseNotFoundExcepti
 import com.boolfly.grademanagementrestful.exception.grade.MaingradeNotFoundException;
 import com.boolfly.grademanagementrestful.repository.CourseRepository;
 import com.boolfly.grademanagementrestful.repository.MaingradeRepository;
-import com.boolfly.grademanagementrestful.repository.SubcolRepository;
-import com.boolfly.grademanagementrestful.repository.SubgradeRepository;
 import com.boolfly.grademanagementrestful.service.PdfService;
 import com.boolfly.grademanagementrestful.service.base.AbstractPdfService;
 import com.boolfly.grademanagementrestful.service.base.PrepareDocumentData;
@@ -28,8 +26,6 @@ import java.util.List;
 public class PdfServiceImpl extends AbstractPdfService implements PdfService {
     private final CourseRepository courseRepository;
     private final MaingradeRepository maingradeRepository;
-    private final SubcolRepository subcolRepository;
-    private final SubgradeRepository subgradeRepository;
 
     @Override
     public ByteArrayOutputStream getAllGradesPDF(String courseId, PrepareDocumentData prepareDocumentData) {

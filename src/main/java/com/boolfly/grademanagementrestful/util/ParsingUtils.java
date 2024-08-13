@@ -11,6 +11,4 @@ public final class ParsingUtils {
         }
         return Double.valueOf(value);
     }
-
-
 }
