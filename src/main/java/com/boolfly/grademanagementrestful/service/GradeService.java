@@ -6,13 +6,13 @@ import com.boolfly.grademanagementrestful.api.dto.grade.SearchGradeRequest;
 import com.boolfly.grademanagementrestful.api.dto.grade.SubgradeUpdateRequest;
 import com.boolfly.grademanagementrestful.domain.Maingrade;
 import com.boolfly.grademanagementrestful.domain.Subgrade;
+import com.boolfly.grademanagementrestful.service.base.PrepareDocumentData;
+import com.boolfly.grademanagementrestful.service.model.UpdateGradeCsvArguments;
 import org.springframework.data.domain.Page;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-public interface GradeService {
+public interface GradeService extends PrepareDocumentData {
     Page<Maingrade> getGrades(int page, int size, SearchGradeRequest request);
 
     Maingrade updateMaingrade(MaingradeUpdateRequest request);
@@ -23,12 +23,5 @@ public interface GradeService {
 
     List<Subgrade> updateSubgradeBatch(BatchRequest<SubgradeUpdateRequest> request);
 
-    ByteArrayOutputStream getSampleGradeCSV(String courseId);
-
-    List<Maingrade> updateGradesCSV(String courseId, MultipartFile request);
-
-    ByteArrayOutputStream getAllGradesCSV(String courseId);
-
-    ByteArrayOutputStream getAllGradesPDF(String courseId);
-
+    void processUpdateGradeCsv(UpdateGradeCsvArguments updateGradeCsvArguments);
 }

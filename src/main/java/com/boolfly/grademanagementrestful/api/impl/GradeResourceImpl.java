@@ -10,7 +10,9 @@ import com.boolfly.grademanagementrestful.exception.base.GradeManagementRuntimeE
 import com.boolfly.grademanagementrestful.mapper.GradeMapper;
 import com.boolfly.grademanagementrestful.mapper.SubgradeMapper;
 import com.boolfly.grademanagementrestful.repository.custom.model.PairSubgradeSubcol;
+import com.boolfly.grademanagementrestful.service.CsvService;
 import com.boolfly.grademanagementrestful.service.GradeService;
+import com.boolfly.grademanagementrestful.service.PdfService;
 import com.boolfly.grademanagementrestful.service.SubgradeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -33,6 +35,8 @@ public class GradeResourceImpl implements GradeResource {
     private static final SubgradeMapper subgradeMapper = SubgradeMapper.INSTANCE;
     private final GradeService gradeService;
     private final SubgradeService subgradeService;
+    private final CsvService csvService;
+    private final PdfService pdfService;
 
     @PostMapping("/search")
     @Override
@@ -100,7 +104,7 @@ public class GradeResourceImpl implements GradeResource {
     @Override
     public HttpEntity<InputStreamResource> getSampleCSV(@PathVariable String courseId) {
         try {
-            ByteArrayOutputStream outputStream = gradeService.getSampleGradeCSV(courseId);
+            ByteArrayOutputStream outputStream = csvService.getSampleGradeCSV(courseId, gradeService);
             InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
             InputStreamResource resource = new InputStreamResource(inputStream);
 
@@ -119,7 +123,7 @@ public class GradeResourceImpl implements GradeResource {
     @Override
     public BatchResponse<GradeResponse> updateGradesFromCSV(@PathVariable String courseId, MultipartFile request) {
         try {
-            List<Maingrade> maingradeList = gradeService.updateGradesCSV(courseId, request);
+            List<Maingrade> maingradeList = csvService.updateGradesCSV(courseId, request, gradeService::processUpdateGradeCsv);
             Map<String, List<PairSubgradeSubcol>> mapPairSubgradeSubcol = subgradeService.getPairSubgradeSubcol(maingradeList);
             BatchResponse<GradeResponse> batchResponse = new BatchResponse<>();
 
@@ -144,7 +148,7 @@ public class GradeResourceImpl implements GradeResource {
     @Override
     public HttpEntity<InputStreamResource> getAllGradesCSV(@PathVariable String courseId) {
         try {
-            ByteArrayOutputStream outputStream = gradeService.getAllGradesCSV(courseId);
+            ByteArrayOutputStream outputStream = csvService.getAllGradesCSV(courseId, gradeService);
             InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
             InputStreamResource resource = new InputStreamResource(inputStream);
 
@@ -162,7 +166,7 @@ public class GradeResourceImpl implements GradeResource {
     @Override
     public HttpEntity<InputStreamResource> getAllGradesPDF(@PathVariable String courseId) {
         try {
-            ByteArrayOutputStream outputStream = gradeService.getAllGradesPDF(courseId);
+            ByteArrayOutputStream outputStream = pdfService.getAllGradesPDF(courseId, gradeService);
             InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
             InputStreamResource resource = new InputStreamResource(inputStream);
 
