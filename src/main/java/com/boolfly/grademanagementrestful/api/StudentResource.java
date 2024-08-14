@@ -12,12 +12,15 @@ import jakarta.validation.constraints.Min;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Student Resource")
 @Validated
 public interface StudentResource {
     @Operation(summary = "Create a new student")
-    StudentResponse createStudent(@Valid @RequestBody StudentRegistrationRequest request);
+    StudentResponse createStudent(@Valid @RequestPart StudentRegistrationRequest request,
+                                  @RequestPart MultipartFile avatar);
 
     @Operation(summary = "Get all students")
     PageResponse<StudentResponse> getStudents(@RequestParam(defaultValue = "0") @Min(0) int page,
