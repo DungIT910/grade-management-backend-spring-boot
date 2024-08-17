@@ -10,7 +10,6 @@ import com.boolfly.grademanagementrestful.repository.RoleRepository;
 import com.boolfly.grademanagementrestful.repository.UserRepository;
 import com.boolfly.grademanagementrestful.service.LecturerService;
 import com.boolfly.grademanagementrestful.service.base.UserServiceImpl;
-import com.cloudinary.Cloudinary;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -55,10 +54,5 @@ public class LecturerServiceImpl extends UserServiceImpl implements LecturerServ
     @Autowired
     public void setRoleRepository(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
-    }
-
-    @Autowired
-    public void setCloudinary(Cloudinary cloudinary) {
-        this.cloudinary = cloudinary;
     }
 }

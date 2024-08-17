@@ -11,13 +11,11 @@ import com.boolfly.grademanagementrestful.exception.user.LecturerNotFoundExcepti
 import com.boolfly.grademanagementrestful.exception.user.StudentNotFoundException;
 import com.boolfly.grademanagementrestful.repository.RoleRepository;
 import com.boolfly.grademanagementrestful.repository.UserRepository;
-import com.cloudinary.Cloudinary;
 import io.hypersistence.tsid.TSID;
 
 public abstract class UserServiceImpl implements UserService {
     protected UserRepository userRepository;
     protected RoleRepository roleRepository;
-    protected Cloudinary cloudinary;
 
     @Override
     public User create(UserRegistrationRequest request, RoleModel roleModel) {
