@@ -2,9 +2,7 @@ package com.boolfly.grademanagementrestful.listener;
 
 import com.boolfly.grademanagementrestful.listener.event.MailEvent;
 import com.boolfly.grademanagementrestful.service.email.EmailSenderService;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -13,9 +11,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MailEventListener implements ApplicationListener<MailEvent> {
-    EmailSenderService senderService;
+    private final EmailSenderService senderService;
 
     @Override
     public void onApplicationEvent(MailEvent event) {

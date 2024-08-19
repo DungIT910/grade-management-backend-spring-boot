@@ -4,6 +4,10 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+
+import java.util.ArrayList;
 
 /**
  * Configuration class for setting up OpenAPI documentation.
@@ -16,6 +20,12 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class OpenAPIConfig {
+
+    public OpenAPIConfig(MappingJackson2HttpMessageConverter converter) {
+        var supportedMediaTypes = new ArrayList<>(converter.getSupportedMediaTypes());
+        supportedMediaTypes.add(new MediaType("application", "octet-stream"));
+        converter.setSupportedMediaTypes(supportedMediaTypes);
+    }
 
     /**
      * Creates and configures an {@link OpenAPI} bean with the API information.

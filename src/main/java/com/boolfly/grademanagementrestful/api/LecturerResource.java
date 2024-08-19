@@ -12,12 +12,15 @@ import jakarta.validation.constraints.Min;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Lecturer Resource")
 @Validated
 public interface LecturerResource {
     @Operation(summary = "Add a new lecturer")
-    LecturerResponse addLecturer(@Valid @RequestBody LecturerAddRequest request);
+    LecturerResponse addLecturer(@Valid @RequestPart LecturerAddRequest request,
+                                 @RequestPart MultipartFile avatar);
 
     @Operation(summary = "Get all lecturers")
     PageResponse<LecturerResponse> getLecturers(@RequestParam(defaultValue = "0") @Min(0) int page,

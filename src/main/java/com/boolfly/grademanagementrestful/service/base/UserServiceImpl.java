@@ -2,6 +2,7 @@ package com.boolfly.grademanagementrestful.service.base;
 
 import com.boolfly.grademanagementrestful.api.dto.user.UserRegistrationRequest;
 import com.boolfly.grademanagementrestful.api.dto.user.UserUpdateRequest;
+import com.boolfly.grademanagementrestful.domain.Role;
 import com.boolfly.grademanagementrestful.domain.User;
 import com.boolfly.grademanagementrestful.domain.model.role.RoleModel;
 import com.boolfly.grademanagementrestful.exception.role.RoleNotFoundException;
@@ -19,23 +20,26 @@ public abstract class UserServiceImpl implements UserService {
     @Override
     public User create(UserRegistrationRequest request, RoleModel roleModel) {
         String email = request.getEmail();
+        String roleName = roleModel.getRoleName();
+
         if (userRepository.existsByEmail(email)) {
             throw new EmailTakenException(email);
         }
 
-        return roleRepository.findByName(roleModel.getRoleName())
-                .map(role -> userRepository.save(
-                        User.builder()
-                                .id(TSID.fast().toLong())
-                                .email(email)
-                                .firstName(request.getFirstName())
-                                .lastName(request.getLastName())
-                                .password(request.getPassword())
-                                .active(true)
-                                .role(role)
-                                .build()
-                ))
+        Role role = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new RoleNotFoundException(roleModel.getRoleType()));
+
+        return userRepository.save(
+                User.builder()
+                        .id(TSID.fast().toLong())
+                        .email(email)
+                        .firstName(request.getFirstName())
+                        .lastName(request.getLastName())
+                        .password(request.getPassword())
+                        .active(true)
+                        .role(role)
+                        .build()
+        );
     }
 
     @Override
