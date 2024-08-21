@@ -1,23 +1,23 @@
 package com.boolfly.grademanagementrestful.mapper;
 
-import com.boolfly.grademanagementrestful.api.dto.post.PostResponse;
-import com.boolfly.grademanagementrestful.domain.Post;
+import com.boolfly.grademanagementrestful.api.dto.comment.CommentResponse;
+import com.boolfly.grademanagementrestful.domain.Comment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface PostMapper extends TSIDMapper, NameMapper, TimeStringMapper {
-    PostMapper INSTANCE = Mappers.getMapper(PostMapper.class);
+public interface CommentMapper extends TSIDMapper, NameMapper, TimeStringMapper {
+    CommentMapper INSTANCE = Mappers.getMapper(CommentMapper.class);
 
-    @Mapping(target = "postId", source = "id", qualifiedByName = "toTSIDString")
-    @Mapping(target = "forumId", source = "forum.id", qualifiedByName = "toTSIDString")
-    @Mapping(target = "forumName", source = "forum.name")
+    @Mapping(target = "commentId", source = "id")
+    @Mapping(target = "postId", source = "post.id", qualifiedByName = "toTSIDString")
+    @Mapping(target = "postTitle", source = "post.title")
     @Mapping(target = "createdById", source = "createdBy.id", qualifiedByName = "toTSIDString")
     @Mapping(target = "createdByName", source = "createdBy", qualifiedByName = "toUserName")
     @Mapping(target = "updatedById", source = "updatedBy.id", qualifiedByName = "toTSIDString")
     @Mapping(target = "updatedByName", source = "updatedBy", qualifiedByName = "toUserName")
     @Mapping(target = "createdOn", source = "createdOn", qualifiedByName = "toStringWithFormat")
     @Mapping(target = "updatedOn", source = "updatedOn", qualifiedByName = "toStringWithFormat")
-    PostResponse toPostResponse(Post post);
+    CommentResponse toCommentResponse(Comment comment);
 }

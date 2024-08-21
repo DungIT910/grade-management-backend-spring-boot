@@ -276,4 +276,130 @@
     <changeSet id="drop-status-field-of-subgrade-table" author="DungIT910">
         <dropColumn tableName="subgrade" columnName="status"/>
     </changeSet>
+    <changeSet id="rename-user_id-to-create_by-and-add-updateBy-to-post" author="DungIT910">
+        <renameColumn tableName="post" oldColumnName="user_id" newColumnName="created_by" columnDataType="bigint"/>
+        <addColumn tableName="post">
+            <column name="updated_by" type="bigint"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-new-table-comment" author="DungIT910">
+        <createTable tableName="comment">
+            <column name="id" type="bigint"/>
+            <column name="content" type="longtext"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="created_on" type="timestamp"/>
+            <column name="updated_on" type="timestamp"/>
+            <column name="post_id" type="bigint">
+                <constraints foreignKeyName="fk_comment_post"
+                             referencedTableName="post"
+                             referencedColumnNames="id"/>
+            </column>
+            <column name="status" type="varchar(255)"/>
+        </createTable>
+        <addPrimaryKey tableName="comment" columnNames="id"/>
+    </changeSet>
+    <changeSet id="constraint-not-null-for-post-id" author="DungIT910">
+        <addNotNullConstraint tableName="comment" columnName="post_id" columnDataType="bigint"/>
+    </changeSet>
+    <changeSet id="add-new-table-comment-tree" author="DungIT910">
+        <createTable tableName="comment_tree">
+            <column name="comment_id" type="bigint">
+                <constraints foreignKeyName="fk_ancestor_comment"
+                             referencedTableName="comment"
+                             referencedColumnNames="id"/>
+            </column>
+            <column name="descendant_id" type="bigint">
+                <constraints foreignKeyName="fk_descendant_comment"
+                             referencedTableName="comment"
+                             referencedColumnNames="id"/>
+            </column>
+        </createTable>
+        <addPrimaryKey
+                tableName="comment_tree"
+                columnNames="comment_id, descendant_id"
+                constraintName="pk_comment_tree"
+        />
+    </changeSet>
+    <changeSet id="rename-colum-comment_id-to-ancestor_id-of-comment_tree-table" author="DungIT910">
+        <renameColumn tableName="comment_tree" oldColumnName="comment_id" newColumnName="ancestor_id"
+                      columnDataType="bigint"/>
+    </changeSet>
+    <changeSet id="drop-status-column-of-comment-table" author="DungIT910">
+        <dropColumn tableName="comment" columnName="status"/>
+    </changeSet>
+    <changeSet id="drop-all-related-foreign-key-constraint-and-set-auto-increment-to-comment-id" author="DungIT910">
+        <dropForeignKeyConstraint baseTableName="comment_tree" constraintName="fk_ancestor_comment"/>
+        <dropForeignKeyConstraint baseTableName="comment_tree" constraintName="fk_descendant_comment"/>
+        <addAutoIncrement tableName="comment" columnName="id" columnDataType="BIGINT"/>
+    </changeSet>
+    <changeSet id="re-add-foreign-key-to-ancestor_id-and-descendant_id-of-comment_tree-table" author="DungIT910">
+        <addForeignKeyConstraint baseTableName="comment_tree"
+                                 baseColumnNames="ancestor_id"
+                                 constraintName="fk_ancestor_comment"
+                                 referencedTableName="comment"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="comment_tree"
+                                 baseColumnNames="descendant_id"
+                                 constraintName="fk_descendant_comment"
+                                 referencedTableName="comment"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+    <changeSet id="change-foreign-key-options-restrict-to-cascade" author="DungIT910">
+        <dropForeignKeyConstraint baseTableName="comment_tree" constraintName="fk_ancestor_comment"/>
+        <dropForeignKeyConstraint baseTableName="comment_tree" constraintName="fk_descendant_comment"/>
+        <addForeignKeyConstraint baseTableName="comment_tree"
+                                 baseColumnNames="ancestor_id"
+                                 constraintName="fk_ancestor_comment"
+                                 referencedTableName="comment"
+                                 referencedColumnNames="id"
+                                 onUpdate="CASCADE"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="comment_tree"
+                                 baseColumnNames="descendant_id"
+                                 constraintName="fk_descendant_comment"
+                                 referencedTableName="comment"
+                                 referencedColumnNames="id"
+                                 onUpdate="CASCADE"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+    <changeSet id="drop-table-comment-tree" author="DungIT910">
+        <dropTable tableName="comment_tree"/>
+    </changeSet>
+
+    <changeSet id="re-add-comment-tree-table-with-auto-increment-id" author="DungIT910">
+        <createTable tableName="comment_tree">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="ancestor_id" type="bigint"/>
+            <column name="descendant_id" type="bigint"/>
+            <column name="depth" type="bigint"/>
+        </createTable>
+        <addNotNullConstraint tableName="comment_tree" columnName="depth" columnDataType="bigint"/>
+        <addForeignKeyConstraint baseTableName="comment_tree"
+                                 baseColumnNames="descendant_id"
+                                 constraintName="fk_descendant_comment"
+                                 referencedTableName="comment"
+                                 referencedColumnNames="id"
+                                 onUpdate="CASCADE"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="comment_tree"
+                                 baseColumnNames="ancestor_id"
+                                 constraintName="fk_ancestor_comment"
+                                 referencedTableName="comment"
+                                 referencedColumnNames="id"
+                                 onUpdate="CASCADE"
+                                 onDelete="CASCADE"/>
+        <addUniqueConstraint tableName="comment_tree"
+                             columnNames="ancestor_id, descendant_id"
+                             constraintName="unique_ancestor_descendant"/>
+    </changeSet>
+    <changeSet id="constraint-not-null-to-ancestor_id-and-descendant_id" author="DungIT910">
+        <addNotNullConstraint tableName="comment_tree" columnName="ancestor_id" columnDataType="bigint"/>
+        <addNotNullConstraint tableName="comment_tree" columnName="descendant_id" columnDataType="bigint"/>
+    </changeSet>
+    <changeSet id="rename-table-comment_tree-to-comment-relation" author="DungIT910">
+        <renameTable oldTableName="comment_tree" newTableName="comment_relation"/>
+    </changeSet>
 </databaseChangeLog>

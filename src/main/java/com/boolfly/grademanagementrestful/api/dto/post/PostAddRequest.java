@@ -9,6 +9,4 @@ public class PostAddRequest {
     private String content;
     @NotNull
     private String forumId;
-    @NotNull
-    private String userId;
 }

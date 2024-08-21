@@ -10,10 +10,8 @@ import com.boolfly.grademanagementrestful.domain.model.forum.ForumStatus;
 import com.boolfly.grademanagementrestful.domain.model.post.PostStatus;
 import com.boolfly.grademanagementrestful.exception.forum.ForumNotFoundException;
 import com.boolfly.grademanagementrestful.exception.post.PostNotFoundException;
-import com.boolfly.grademanagementrestful.exception.user.UserNotFoundException;
 import com.boolfly.grademanagementrestful.repository.ForumRepository;
 import com.boolfly.grademanagementrestful.repository.PostRepository;
-import com.boolfly.grademanagementrestful.repository.UserRepository;
 import com.boolfly.grademanagementrestful.service.PostService;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import io.hypersistence.tsid.TSID;
@@ -30,7 +28,6 @@ import java.util.Optional;
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final ForumRepository forumRepository;
-    private final UserRepository userRepository;
 
     @Override
     public Page<Post> getPosts(int page, int size, SearchPostRequest request) {
@@ -44,16 +41,13 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post addPost(PostAddRequest request) {
         return forumRepository.findByIdAndStatus(TSID.from(request.getForumId()).toLong(), ForumStatus.ACTIVE)
-                .map(forum -> userRepository.findByIdAndActiveTrue(TSID.from(request.getUserId()).toLong())
-                        .map(user -> postRepository.save(Post.builder()
-                                .id(TSID.fast().toLong())
-                                .title(request.getTitle())
-                                .content(request.getContent())
-                                .forum(forum)
-                                .user(user)
-                                .status(PostStatus.ACTIVE)
-                                .build()))
-                        .orElseThrow(() -> new UserNotFoundException(request.getUserId()))
+                .map(forum -> postRepository.save(Post.builder()
+                        .id(TSID.fast().toLong())
+                        .title(request.getTitle())
+                        .content(request.getContent())
+                        .forum(forum)
+                        .status(PostStatus.ACTIVE)
+                        .build())
                 ).orElseThrow(() -> new ForumNotFoundException(request.getForumId()));
     }
 
@@ -68,21 +62,9 @@ public class PostServiceImpl implements PostService {
                     Optional.ofNullable(request.getContent())
                             .filter(content -> !content.isEmpty() && !Objects.equals(post.getContent(), content))
                             .ifPresent(post::setContent);
-                    Optional.ofNullable(request.getForumId())
-                            .filter(frId -> !frId.isEmpty() && !Objects.equals(post.getForum().getId(), TSID.from(frId).toLong()))
-                            .map(TSID::from)
-                            .map(frId -> forumRepository.findByIdAndStatus(frId.toLong(), ForumStatus.ACTIVE)
-                                    .orElseThrow(() -> new ForumNotFoundException(frId.toString())))
-                            .ifPresent(post::setForum);
-                    Optional.ofNullable(request.getUserId())
-                            .filter(userId -> !userId.isEmpty() && !Objects.equals(post.getUser().getId(), TSID.from(userId).toLong()))
-                            .map(TSID::from)
-                            .map(userId -> userRepository.findByIdAndActiveTrue(userId.toLong())
-                                    .orElseThrow(() -> new UserNotFoundException(userId.toString())))
-                            .ifPresent(post::setUser);
                     return postRepository.save(post);
                 })
-                .orElseThrow(() -> new PostNotFoundException(request.getForumId()));
+                .orElseThrow(() -> new PostNotFoundException(request.getPostId()));
     }
 
     @Override

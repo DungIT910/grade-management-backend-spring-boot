@@ -9,8 +9,4 @@ public class PostUpdateRequest {
     private String postId;
     private String title;
     private String content;
-    @NotNull
-    private String forumId;
-    @NotNull
-    private String userId;
 }

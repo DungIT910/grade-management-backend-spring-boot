@@ -1,21 +1,19 @@
-package com.boolfly.grademanagementrestful.api.dto.post;
+package com.boolfly.grademanagementrestful.api.dto.comment;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class PostResponse {
-    private String postId;
-    private String title;
+public class CommentResponse {
+    private Long commentId;
     private String content;
-    private String forumId;
-    private String forumName;
     private String createdById;
     private String createdByName;
     private String updatedById;
     private String updatedByName;
     private String createdOn;
     private String updatedOn;
-    private String status;
+    private String postId;
+    private String postTitle;
 }

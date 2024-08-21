@@ -20,8 +20,6 @@ public class Post extends AbstractAuditEntity {
     private String content;
     @ManyToOne(fetch = FetchType.LAZY)
     private Forum forum;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
     @Enumerated(EnumType.STRING)
     private PostStatus status;
 }
