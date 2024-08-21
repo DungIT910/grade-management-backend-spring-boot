@@ -1,5 +1,7 @@
 package com.boolfly.grademanagementrestful.api;
 
+import com.boolfly.grademanagementrestful.api.dto.comment.CommentAddRequest;
+import com.boolfly.grademanagementrestful.api.dto.comment.CommentResponse;
 import com.boolfly.grademanagementrestful.api.dto.general.PageResponse;
 import com.boolfly.grademanagementrestful.api.dto.post.PostAddRequest;
 import com.boolfly.grademanagementrestful.api.dto.post.PostResponse;
@@ -10,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -20,6 +23,14 @@ public interface PostResource {
     PageResponse<PostResponse> getPosts(@RequestParam(defaultValue = "0") @Min(0) int page,
                                         @RequestParam(defaultValue = "10") @Min(1) int size,
                                         @RequestBody SearchPostRequest request);
+
+    @Operation(summary = "Get comments from a post")
+    PageResponse<CommentResponse> getComments(@RequestParam(defaultValue = "0") @Min(0) int page,
+                                              @RequestParam(defaultValue = "10") @Min(1) int size,
+                                              String postId);
+
+    @Operation(summary = "Add a new comment")
+    CommentResponse addCommentToPost(@Valid @RequestBody CommentAddRequest request, @PathVariable String postId);
 
     @Operation(summary = "Add a new post")
     PostResponse addPost(@Valid @RequestBody PostAddRequest request);

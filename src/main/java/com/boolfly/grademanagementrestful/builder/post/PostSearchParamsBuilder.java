@@ -17,7 +17,6 @@ public final class PostSearchParamsBuilder extends AbstractSearchParamsBuilder {
     private final String postId;
     private final String title;
     private final String forumId;
-    private final String userId;
     private final List<PostStatus> status;
 
     public PostSearchParamsBuilder(PostBuilder builder) {
@@ -25,7 +24,6 @@ public final class PostSearchParamsBuilder extends AbstractSearchParamsBuilder {
         this.postId = builder.postId;
         this.title = builder.title;
         this.forumId = builder.forumId;
-        this.userId = builder.userId;
         this.status = builder.status;
     }
 
@@ -36,7 +34,6 @@ public final class PostSearchParamsBuilder extends AbstractSearchParamsBuilder {
                 .withPostId(request.getPostId())
                 .withTitle(request.getTitle())
                 .withForumId(request.getForumId())
-                .withUserId(request.getUserId())
                 .withStatus(request.getStatus())
                 .build();
     }
@@ -47,10 +44,7 @@ public final class PostSearchParamsBuilder extends AbstractSearchParamsBuilder {
                         getCommonCriteria(PostEntityPathProvider.getInstance(), title, postId, status),
                         Optional.ofNullable(forumId)
                                 .map(this::toTSIDLong)
-                                .map(post.forum.id::eq),
-                        Optional.ofNullable(userId)
-                                .map(this::toTSIDLong)
-                                .map(post.user.id::eq)
+                                .map(post.forum.id::eq)
                 )
                 .filter(Optional::isPresent).map(Optional::get)
                 .reduce(BooleanExpression::and);
@@ -60,7 +54,6 @@ public final class PostSearchParamsBuilder extends AbstractSearchParamsBuilder {
         private String postId;
         private String title;
         private String forumId;
-        private String userId;
         private List<PostStatus> status;
 
         public PostBuilder withPostId(String postId) {
@@ -75,11 +68,6 @@ public final class PostSearchParamsBuilder extends AbstractSearchParamsBuilder {
 
         public PostBuilder withForumId(String forumId) {
             this.forumId = forumId;
-            return this;
-        }
-
-        public PostBuilder withUserId(String userId) {
-            this.userId = userId;
             return this;
         }
 

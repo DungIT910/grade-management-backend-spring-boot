@@ -1,9 +1,11 @@
 package com.boolfly.grademanagementrestful.domain.base;
 
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
+import com.boolfly.grademanagementrestful.domain.User;
+import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -32,4 +34,14 @@ public abstract class AbstractAuditEntity {
 
     @LastModifiedDate
     private Instant updatedOn;
+
+    @CreatedBy
+    @JoinColumn(name = "created_by")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User createdBy;
+
+    @LastModifiedBy
+    @JoinColumn(name = "updated_by")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User updatedBy;
 }

@@ -10,6 +10,5 @@ public class SearchPostRequest {
     private String postId;
     private String title;
     private String forumId;
-    private String userId;
     private List<PostStatus> status;
 }
