@@ -20,6 +20,7 @@ import com.boolfly.grademanagementrestful.service.model.UpdateGradeCsvArguments;
 import io.hypersistence.tsid.TSID;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,6 +37,7 @@ public class CsvServiceImpl extends AbstractCsvService implements CsvService {
     private final SubcolRepository subcolRepository;
 
     @Override
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public ByteArrayOutputStream getSampleGradeCSV(String courseId, PrepareDocumentData prepareDocumentData) {
         Long courseLongId = TSID.from(courseId).toLong();
 
@@ -58,6 +60,7 @@ public class CsvServiceImpl extends AbstractCsvService implements CsvService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public ByteArrayOutputStream getAllGradesCSV(String courseId, PrepareDocumentData prepareDocumentData) {
         Long courseLongId = TSID.from(courseId).toLong();
 
@@ -82,6 +85,7 @@ public class CsvServiceImpl extends AbstractCsvService implements CsvService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public List<Maingrade> updateGradesCSV(String courseId,
                                            MultipartFile request,
                                            Consumer<UpdateGradeCsvArguments> processUpdateGradeCsv) {

@@ -15,6 +15,7 @@ import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,6 +89,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @PostAuthorize("returnObject.createdBy.email == authentication.getName()")
     public Comment updateComment(CommentUpdateRequest request, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
@@ -97,6 +99,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
+    @PostAuthorize("hasAnyRole('ROLE_ADMIN') or returnObject.createdBy.email == authentication.getName()")
     public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);

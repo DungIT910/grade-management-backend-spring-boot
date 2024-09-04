@@ -32,4 +32,7 @@ public interface StudentResource {
 
     @Operation(summary = "Deactivate a student")
     void deactivateStudent(String studentId);
+
+    @Operation(summary = "Get information of a student")
+    StudentResponse getStudent(String studentId);
 }

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -16,6 +17,9 @@ public interface UserRepository extends JpaRepository<User, Long>, QuerydslPredi
     List<User> findAllByIdInAndActiveTrue(List<Long> ids);
 
     Optional<User> findByIdAndRole_Name(Long id, String roleName);
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
 

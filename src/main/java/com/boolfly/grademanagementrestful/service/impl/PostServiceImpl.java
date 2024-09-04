@@ -18,6 +18,7 @@ import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -52,22 +53,26 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @PostAuthorize("returnObject.createdBy.email == authentication.name")
     public Post updatePost(PostUpdateRequest request) {
         TSID postId = TSID.from(request.getPostId());
-        return postRepository.findByIdAndStatus(postId.toLong(), PostStatus.ACTIVE)
-                .map(post -> {
-                    Optional.ofNullable(request.getTitle())
-                            .filter(title -> !title.isEmpty() && !Objects.equals(post.getTitle(), title))
-                            .ifPresent(post::setTitle);
-                    Optional.ofNullable(request.getContent())
-                            .filter(content -> !content.isEmpty() && !Objects.equals(post.getContent(), content))
-                            .ifPresent(post::setContent);
-                    return postRepository.save(post);
-                })
+
+        Post post = postRepository.findByIdAndStatus(postId.toLong(), PostStatus.ACTIVE)
                 .orElseThrow(() -> new PostNotFoundException(request.getPostId()));
+
+        Optional.ofNullable(request.getTitle())
+                .filter(title -> !title.isEmpty() && !Objects.equals(post.getTitle(), title))
+                .ifPresent(post::setTitle);
+
+        Optional.ofNullable(request.getContent())
+                .filter(content -> !content.isEmpty() && !Objects.equals(post.getContent(), content))
+                .ifPresent(post::setContent);
+
+        return postRepository.save(post);
     }
 
     @Override
+    @PostAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER') or returnObject.createdBy.email == authentication.name")
     public void deactivatePost(String postId) {
         Post post = postRepository.findByIdAndStatus(TSID.from(postId).toLong(), PostStatus.ACTIVE)
                 .orElseThrow(() -> new PostNotFoundException(postId));

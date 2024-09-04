@@ -11,4 +11,6 @@ public interface UserService {
     void deactivate(String id, RoleModel roleModel);
 
     User update(UserUpdateRequest request, RoleModel roleModel);
+
+    User getUser(String id);
 }

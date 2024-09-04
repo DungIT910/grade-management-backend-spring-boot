@@ -20,6 +20,7 @@ import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -32,6 +33,7 @@ public class SubcolServiceImpl implements SubcolService {
     private final SubcolRepository subcolRepository;
 
     @Override
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Page<Subcol> getSubcols(int page, int size, SearchSubcolRequest request) {
         SearchParamsBuilder paramsBuilder = SubcolSearchParamsBuilder.from(page, size, request);
         Optional<BooleanExpression> predicate = paramsBuilder.getCommonCriteria();
@@ -41,6 +43,7 @@ public class SubcolServiceImpl implements SubcolService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public Subcol addSubcol(SubcolAddRequest request) {
         String courseIdAsString = request.getCourseId();
         Long courseId = TSID.from(courseIdAsString).toLong();
@@ -61,6 +64,7 @@ public class SubcolServiceImpl implements SubcolService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public Subcol updateSubcol(SubcolUpdateRequest request) {
         String subcolIdAsString = request.getSubcolId();
         return subcolRepository.findByIdAndStatus(TSID.from(subcolIdAsString).toLong(), SubcolStatus.ACTIVE)
@@ -73,6 +77,7 @@ public class SubcolServiceImpl implements SubcolService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public void deactivateSubcol(String subcolId) {
         Subcol subcol = subcolRepository.findByIdAndStatus(TSID.from(subcolId).toLong(), SubcolStatus.ACTIVE)
                 .orElseThrow(() -> new SubcolNotFoundException(subcolId));

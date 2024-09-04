@@ -13,9 +13,11 @@ import com.boolfly.grademanagementrestful.listener.event.UploadAvatarEvent;
 import com.boolfly.grademanagementrestful.mapper.UserMapper;
 import com.boolfly.grademanagementrestful.service.StudentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/students")
 @RequiredArgsConstructor
+@Slf4j
 public class StudentResourceImpl implements StudentResource {
     private static final UserMapper userMapper = UserMapper.INSTANCE;
     private final StudentService studentService;
@@ -49,6 +52,10 @@ public class StudentResourceImpl implements StudentResource {
     @Override
     public PageResponse<StudentResponse> getStudents(int page, int size, SearchUserRequest request) {
         try {
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            log.info("Username: {}", authentication.getName());
+            log.info("Role: {}", authentication.getAuthorities());
+
             request = request.withRoles(List.of(RoleModel.ROLE_STUDENT));
             Page<User> pageUser = studentService.getStudents(page, size, request);
             Page<StudentResponse> pStudentResponse = pageUser
@@ -80,5 +87,11 @@ public class StudentResourceImpl implements StudentResource {
         } catch (Exception e) {
             throw new GradeManagementRuntimeException(e);
         }
+    }
+
+    @GetMapping("/{studentId}")
+    @Override
+    public StudentResponse getStudent(@PathVariable String studentId) {
+        return userMapper.toStudentResponse(studentService.getUser(studentId));
     }
 }

@@ -15,6 +15,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.properties.TextAlignment;
 import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -28,6 +29,7 @@ public class PdfServiceImpl extends AbstractPdfService implements PdfService {
     private final MaingradeRepository maingradeRepository;
 
     @Override
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public ByteArrayOutputStream getAllGradesPDF(String courseId, PrepareDocumentData prepareDocumentData) {
         Long courseLongId = TSID.from(courseId).toLong();
 

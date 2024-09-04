@@ -37,11 +37,11 @@ public abstract class AbstractAuditEntity {
 
     @CreatedBy
     @JoinColumn(name = "created_by")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private User createdBy;
 
     @LastModifiedBy
     @JoinColumn(name = "updated_by")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private User updatedBy;
 }

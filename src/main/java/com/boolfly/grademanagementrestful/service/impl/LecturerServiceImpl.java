@@ -14,6 +14,8 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,6 +24,7 @@ import java.util.Optional;
 public class LecturerServiceImpl extends UserServiceImpl implements LecturerService {
 
     @Override
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Page<User> getLecturers(int page, int size, SearchUserRequest request) {
         UserSearchParamsBuilder searchParamsBuilder = UserSearchParamsBuilder.from(page, size, request);
         Optional<BooleanExpression> predicate = searchParamsBuilder.getCommonCriteria();
@@ -32,16 +35,19 @@ public class LecturerServiceImpl extends UserServiceImpl implements LecturerServ
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public User addLecturer(LecturerAddRequest request) {
         return create(request, RoleModel.ROLE_LECTURER);
     }
 
     @Override
+    @PostAuthorize("hasRole('ROLE_ADMIN') or returnObject.email == authentication.getName()")
     public User updateLecturer(LecturerUpdateRequest request) {
         return update(request, RoleModel.ROLE_LECTURER);
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deactivateLecturer(String lecturerId) {
         deactivate(lecturerId, RoleModel.ROLE_LECTURER);
     }

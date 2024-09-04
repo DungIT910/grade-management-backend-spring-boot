@@ -80,4 +80,10 @@ public class LecturerResourceImpl implements LecturerResource {
             throw new GradeManagementRuntimeException(e);
         }
     }
+
+    @GetMapping("/{lecturerId}")
+    @Override
+    public LecturerResponse getLecturer(@PathVariable String lecturerId) {
+        return userMapper.toLecturerResponse(lecturerService.getUser(lecturerId));
+    }
 }

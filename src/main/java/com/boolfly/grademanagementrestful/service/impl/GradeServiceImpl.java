@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -55,6 +56,7 @@ public class GradeServiceImpl implements GradeService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public Maingrade updateMaingrade(MaingradeUpdateRequest request) {
         Long maingradeId = TSID.from(request.getMaingradeId()).toLong();
         return maingradeRepository.findByIdAndStatusNot(maingradeId, MaingradeStatus.INACTIVE)
@@ -72,6 +74,7 @@ public class GradeServiceImpl implements GradeService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public Subgrade updateSubgrade(SubgradeUpdateRequest request) {
         TSID subcolId = TSID.from(request.getSubcolId());
         Long studentLongId = TSID.from(request.getStudentId()).toLong();
@@ -104,6 +107,7 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public List<Maingrade> updateMaingradeBatch(BatchRequest<MaingradeUpdateRequest> request) {
         List<MaingradeUpdateRequest> batch = Optional.ofNullable(request.getBatch())
                 .orElseGet(List::of);
@@ -130,6 +134,7 @@ public class GradeServiceImpl implements GradeService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public List<Subgrade> updateSubgradeBatch(BatchRequest<SubgradeUpdateRequest> request) {
         List<SubgradeUpdateRequest> batch = Optional.ofNullable(request.getBatch())
                 .orElse(List.of());

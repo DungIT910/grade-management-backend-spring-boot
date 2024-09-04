@@ -15,6 +15,7 @@ import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -35,6 +36,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Subject addSubject(SubjectAddRequest request) {
         return subjectRepository.save(Subject.builder()
                 .id(TSID.fast().toLong())
@@ -43,6 +45,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Subject updateSubject(SubjectUpdateRequest request) {
         return subjectRepository.findByIdAndStatus(TSID.from(request.getSubjectId()).toLong(), SubjectStatus.ACTIVE)
                 .map(subject -> {
@@ -54,6 +57,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deactivateSubject(String subjectId) {
         Subject subject = subjectRepository.findByIdAndStatus(TSID.from(subjectId).toLong(), SubjectStatus.ACTIVE)
                 .orElseThrow(() -> new SubjectNotFoundException(subjectId));
