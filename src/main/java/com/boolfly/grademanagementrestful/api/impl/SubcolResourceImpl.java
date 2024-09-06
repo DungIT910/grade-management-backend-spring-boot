@@ -11,6 +11,7 @@ import com.boolfly.grademanagementrestful.mapper.SubcolMapper;
 import com.boolfly.grademanagementrestful.service.SubcolService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,6 +31,7 @@ public class SubcolResourceImpl implements SubcolResource {
     }
 
     @PostMapping
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByCourseId(authentication.name, #request.courseId)")
     @Override
     public SubcolResponse addSubcol(SubcolAddRequest request) {
         try {
@@ -40,6 +42,7 @@ public class SubcolResourceImpl implements SubcolResource {
     }
 
     @PutMapping
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseBySubcolId(authentication.name, #request.subcolId)")
     @Override
     public SubcolResponse updateSubcol(SubcolUpdateRequest request) {
         try {
@@ -50,6 +53,7 @@ public class SubcolResourceImpl implements SubcolResource {
     }
 
     @DeleteMapping("/{subcolId}")
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseBySubcolId(authentication.name, #subcolId)")
     @Override
     public void deactivateSubcol(@PathVariable String subcolId) {
         try {

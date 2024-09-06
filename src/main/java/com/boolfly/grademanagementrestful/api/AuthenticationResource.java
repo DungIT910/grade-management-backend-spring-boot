@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Tag(name = "Authentication Resource")
 @Validated
 public interface AuthenticationResource {
-    @Operation(summary = "Authenticate specific user, return access and refresh token")
+    @Operation(summary = "Authenticate specific user then return an access token")
     AuthenticationResponse authenticate(@Valid @RequestBody AuthenticationRequest request);
 
     @Operation(summary = "Get current authenticated user")

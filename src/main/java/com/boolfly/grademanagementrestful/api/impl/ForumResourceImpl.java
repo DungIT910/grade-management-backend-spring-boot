@@ -11,6 +11,7 @@ import com.boolfly.grademanagementrestful.mapper.ForumMapper;
 import com.boolfly.grademanagementrestful.service.ForumService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,6 +35,7 @@ public class ForumResourceImpl implements ForumResource {
     }
 
     @PostMapping
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByCourseId(authentication.name, #request.courseId)")
     @Override
     public ForumResponse addForum(ForumAddRequest request) {
         try {
@@ -44,6 +46,7 @@ public class ForumResourceImpl implements ForumResource {
     }
 
     @PutMapping
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByCourseId(authentication.name, #request.courseId)")
     @Override
     public ForumResponse updateForum(ForumUpdateRequest request) {
         try {
@@ -54,6 +57,7 @@ public class ForumResourceImpl implements ForumResource {
     }
 
     @DeleteMapping("/{forumId}")
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByForumId(authentication.name, #forumId)")
     @Override
     public void deactivateForum(@PathVariable String forumId) {
         try {

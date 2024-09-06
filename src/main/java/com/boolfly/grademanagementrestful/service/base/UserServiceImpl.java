@@ -13,7 +13,7 @@ import com.boolfly.grademanagementrestful.exception.user.UserNotFoundException;
 import com.boolfly.grademanagementrestful.repository.RoleRepository;
 import com.boolfly.grademanagementrestful.repository.UserRepository;
 import io.hypersistence.tsid.TSID;
-import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -89,7 +89,7 @@ public abstract class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PostAuthorize("returnObject.email == authentication.name")
+    @PreAuthorize("@customSecurityExpression.verifyAccountOwner(authentication.name, #id)")
     public User getUser(String id) {
         return userRepository.findById(TSID.from(id).toLong())
                 .orElseThrow(UserNotFoundException::new);

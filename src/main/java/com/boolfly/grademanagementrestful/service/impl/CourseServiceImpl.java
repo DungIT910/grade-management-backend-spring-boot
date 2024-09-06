@@ -24,7 +24,6 @@ import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneOffset;
@@ -51,7 +50,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Course addCourse(CourseAddRequest request) {
         TSID subjectId = TSID.from(request.getSubjectId());
         TSID lecturerId = TSID.from(request.getLecturerId());
@@ -71,7 +69,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Course updateCourse(CourseUpdateRequest request) {
         String courseIdAsString = request.getCourseId();
         return courseRepository.findByIdAndStatus(TSID.from(courseIdAsString).toLong(), CourseStatus.ACTIVE)
@@ -103,7 +100,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deactivateCourse(String courseId) {
         courseRepository.findByIdAndStatus(TSID.from(courseId).toLong(), CourseStatus.ACTIVE)
                 .ifPresent(course -> {
@@ -113,7 +109,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<User> addStudentsToCourse(String courseId, CourseAddStudentRequest request) {
         List<String> studentIds = request.getStudentIds();
         if (studentIds == null || studentIds.isEmpty()) {
@@ -152,7 +147,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deactivateStudent(String courseId, String studentId) {
         Long courseID = TSID.from(courseId).toLong();
         Long studentID = TSID.from(studentId).toLong();

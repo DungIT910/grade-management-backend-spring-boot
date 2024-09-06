@@ -22,7 +22,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public String authenticate(AuthenticationRequest request) {
         String userName = request.getUsername();
-        User user = userRepository.findByEmail(userName)
+        User user = userRepository.findByEmailAndActiveTrue(userName)
                 .orElseThrow(UserNotFoundException::new);
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -37,7 +37,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public User getCurrentUser() {
         var context = SecurityContextHolder.getContext();
         String username = context.getAuthentication().getName();
-        return userRepository.findByEmail(username)
+        return userRepository.findByEmailAndActiveTrue(username)
                 .orElseThrow(UserNotFoundException::new);
     }
 }

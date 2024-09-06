@@ -15,20 +15,16 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
 public class StudentServiceImpl extends UserServiceImpl implements StudentService {
     @Override
-    @PostAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STUDENT')")
     public User createStudent(StudentRegistrationRequest request) {
         return create(request, RoleModel.ROLE_STUDENT);
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Page<User> getStudents(int page, int size, SearchUserRequest request) {
         UserSearchParamsBuilder searchParamsBuilder = UserSearchParamsBuilder.from(page, size, request);
         BooleanExpression predicate = searchParamsBuilder.getCommonCriteriaValue();
@@ -39,13 +35,11 @@ public class StudentServiceImpl extends UserServiceImpl implements StudentServic
 
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STUDENT')")
     public User updateStudent(StudentUpdateRequest request) {
         return update(request, RoleModel.ROLE_STUDENT);
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deactivateStudent(String studentId) {
         deactivate(studentId, RoleModel.ROLE_STUDENT);
     }

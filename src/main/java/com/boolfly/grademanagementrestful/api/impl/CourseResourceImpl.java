@@ -17,6 +17,7 @@ import com.boolfly.grademanagementrestful.mapper.UserMapper;
 import com.boolfly.grademanagementrestful.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -78,12 +79,15 @@ public class CourseResourceImpl implements CourseResource {
     }
 
     @DeleteMapping("/{courseId}/student-deactivation/{studentId}")
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByCourseId(authentication.name,  #courseId)")
     @Override
     public void deactivateStudent(@PathVariable String courseId, @PathVariable String studentId) {
         courseService.deactivateStudent(courseId, studentId);
     }
 
     @GetMapping("/{courseId}/subcols")
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByCourseId(authentication.name,  #courseId)")
+    @Override
     public CourseSubcolResponse getSubcols(@PathVariable String courseId) {
         CourseSubcolResponse response = new CourseSubcolResponse();
         response.setSubcols(courseService.getSubcols(courseId).stream().map(subcolMapper::toSubcolResponse).toList());

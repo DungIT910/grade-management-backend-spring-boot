@@ -18,7 +18,6 @@ import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -53,7 +52,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @PostAuthorize("returnObject.createdBy.email == authentication.name")
     public Post updatePost(PostUpdateRequest request) {
         TSID postId = TSID.from(request.getPostId());
 
@@ -72,12 +70,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @PostAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER') or returnObject.createdBy.email == authentication.name")
-    public void deactivatePost(String postId) {
+    public Post deactivatePost(String postId) {
         Post post = postRepository.findByIdAndStatus(TSID.from(postId).toLong(), PostStatus.ACTIVE)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
         post.setStatus(PostStatus.INACTIVE);
-        postRepository.save(post);
+        return postRepository.save(post);
     }
 }

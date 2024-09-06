@@ -15,6 +15,7 @@ import com.boolfly.grademanagementrestful.service.CommentService;
 import com.boolfly.grademanagementrestful.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -40,6 +41,7 @@ public class PostResourceImpl implements PostResource {
     }
 
     @GetMapping("/{postId}/comments/")
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByPostId(authentication.name, #postId)")
     @Override
     public PageResponse<CommentResponse> getComments(int page, int size, @PathVariable String postId) {
         Page<CommentResponse> pageComment = commentService.getCommentsByPostId(page, size, postId).map(commentMapper::toCommentResponse);
@@ -49,12 +51,14 @@ public class PostResourceImpl implements PostResource {
     }
 
     @PostMapping("/{postId}/comments/")
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByPostId(authentication.name, #postId)")
     @Override
     public CommentResponse addCommentToPost(CommentAddRequest request, @PathVariable String postId) {
         return commentMapper.toCommentResponse(commentService.addCommentToPost(request, postId));
     }
 
     @PostMapping
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByForumId(authentication.name, #request.forumId)")
     @Override
     public PostResponse addPost(PostAddRequest request) {
         try {
@@ -65,6 +69,7 @@ public class PostResourceImpl implements PostResource {
     }
 
     @PutMapping
+    @PreAuthorize("@customSecurityExpression.verifyPostOwner(authentication.name, #request.postId)")
     @Override
     public PostResponse updatePost(PostUpdateRequest request) {
         try {
@@ -75,6 +80,9 @@ public class PostResourceImpl implements PostResource {
     }
 
     @DeleteMapping("/{postId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') " +
+            "or (hasRole('ROLE_LECTURER' and @customSecurityExpression.verifyUserInCourseByPostId(authentication.name, #postId)))" +
+            "or customSecurityExpression.verifyPostOwner(authentication.name, #postId)")
     @Override
     public void deactivatePost(@PathVariable String postId) {
         try {

@@ -13,5 +13,5 @@ public interface PostService {
 
     Post updatePost(PostUpdateRequest request);
 
-    void deactivatePost(String postId);
+    Post deactivatePost(String postId);
 }

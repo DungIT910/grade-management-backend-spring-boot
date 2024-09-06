@@ -20,7 +20,6 @@ import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -43,7 +42,6 @@ public class ForumServiceImpl implements ForumService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public Forum addForum(ForumAddRequest request) {
         TSID courseId = TSID.from(request.getCourseId());
         return courseRepository.findByIdAndStatusNot(courseId.toLong(), CourseStatus.INACTIVE)
@@ -59,7 +57,6 @@ public class ForumServiceImpl implements ForumService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public Forum updateForum(ForumUpdateRequest request) {
         String forumIdAsString = request.getForumId();
         TSID forumId = TSID.from(forumIdAsString);
@@ -68,9 +65,11 @@ public class ForumServiceImpl implements ForumService {
                     Optional.ofNullable(request.getName())
                             .filter(name -> !name.isEmpty() && !Objects.equals(forum.getName(), name))
                             .ifPresent(forum::setName);
+
                     Optional.ofNullable(request.getDescription())
                             .filter(des -> !des.isEmpty() && !Objects.equals(forum.getDescription(), des))
                             .ifPresent(forum::setDescription);
+
                     Optional.ofNullable(request.getCourseId())
                             .filter(courseId -> !courseId.isEmpty())
                             .map(TSID::from)
@@ -85,7 +84,6 @@ public class ForumServiceImpl implements ForumService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_LECTURER')")
     public void deactivateForum(String forumId) {
         Long forumIdAsLong = TSID.from(forumId).toLong();
         Forum forum = forumRepository.findByIdAndStatus(forumIdAsLong, ForumStatus.ACTIVE)

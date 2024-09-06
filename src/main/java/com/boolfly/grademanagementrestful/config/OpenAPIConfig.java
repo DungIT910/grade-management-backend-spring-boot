@@ -1,18 +1,18 @@
 package com.boolfly.grademanagementrestful.config;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.annotations.servers.Server;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Configuration class for setting up OpenAPI documentation.
@@ -24,18 +24,8 @@ import java.util.ArrayList;
  * @see Info
  */
 @Configuration
-@OpenAPIDefinition(
-        info = @io.swagger.v3.oas.annotations.info.Info(title = "Your API", version = "v1"),
-        security = @SecurityRequirement(name = "bearerAuth"),
-        servers = @Server(url = "http://localhost:8080")
-)
-@SecurityScheme(
-        name = "bearerAuth",
-        type = SecuritySchemeType.HTTP,
-        scheme = "bearer",
-        bearerFormat = "JWT"
-)
 public class OpenAPIConfig {
+    private static final String BEARER_AUTH_KEY = "bearerAuth";
 
     public OpenAPIConfig(MappingJackson2HttpMessageConverter converter) {
         var supportedMediaTypes = new ArrayList<>(converter.getSupportedMediaTypes());
@@ -50,10 +40,19 @@ public class OpenAPIConfig {
      */
     @Bean
     public OpenAPI openAPI() {
+
         return new OpenAPI()
                 .info(new Info()
                         .title("Grade Management Restful API")
-                        .version("v1.0")
-                );
+                        .version("v1"))
+                .components(new Components()
+                        .addSecuritySchemes(BEARER_AUTH_KEY,
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")))
+                .security(List.of(new SecurityRequirement().addList(BEARER_AUTH_KEY)))
+                .addServersItem(new Server()
+                        .url("http://localhost:8080"));
     }
 }

@@ -1,7 +1,6 @@
 package com.boolfly.grademanagementrestful.config;
 
-import com.boolfly.grademanagementrestful.security.custom.CustomSecurityExpression;
-import lombok.RequiredArgsConstructor;
+import com.boolfly.grademanagementrestful.domain.model.role.RoleModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,19 +23,40 @@ import javax.crypto.spec.SecretKeySpec;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
-    private final CustomSecurityExpression customSecurityExpression;
+    private final String ROLE_ADMIN = RoleModel.ROLE_ADMIN.getRoleName();
+    private final String ROLE_LECTURER = RoleModel.ROLE_LECTURER.getRoleName();
+    private final String ROLE_STUDENT = RoleModel.ROLE_STUDENT.getRoleName();
+    private final String[] searchAPIs = {
+            "/api/v1/subcols/search", "/api/v1/courses/search", "/api/v1/subjects/search",
+            "/api/v1/grades/search", "/api/v1/students/search", "/api/v1/lecturers/search",
+            "/api/v1/forums/search", "/api/v1/posts/search"
+    };
+
     @Value("${jwt.signer-key}")
     private String signerKey;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request ->
-                request
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/token").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**").permitAll()
-                        .anyRequest().authenticated()
+                        request
+                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/auth/token").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/students").permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/students").hasAnyAuthority(ROLE_ADMIN, ROLE_STUDENT)
+                                .requestMatchers(HttpMethod.GET, "/api/v1/students/{studentId}").hasAnyAuthority(ROLE_ADMIN, ROLE_STUDENT)
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/lecturers").hasAnyAuthority(ROLE_ADMIN, ROLE_LECTURER)
+                                .requestMatchers(HttpMethod.GET, "/api/v1/lecturers/{lecturerId}").hasAnyAuthority(ROLE_ADMIN, ROLE_LECTURER)
+                                .requestMatchers("/api/v1/courses/{courseId}/subcols").authenticated()
+                                .requestMatchers("/api/v1/courses/{courseId}/student-deactivation/{studentId}").hasAnyAuthority(ROLE_ADMIN, ROLE_LECTURER)
+//                        .requestMatchers(searchAPIs).hasAuthority(ROLE_ADMIN)
+                                .requestMatchers("/api/v1/courses/**").hasAuthority(ROLE_ADMIN)
+                                .requestMatchers("/api/v1/grades/**").hasAnyAuthority(ROLE_ADMIN, ROLE_LECTURER)
+                                .requestMatchers("/api/v1/forums/**").hasAnyAuthority(ROLE_ADMIN, ROLE_LECTURER)
+                                .requestMatchers("/api/v1/subcols/**").hasAnyAuthority(ROLE_ADMIN, ROLE_LECTURER)
+                                .requestMatchers("/api/v1/lecturers/**").hasAuthority(ROLE_ADMIN)
+                                .requestMatchers("/api/v1/subjects/**").hasAuthority(ROLE_ADMIN)
+                                .anyRequest().authenticated()
         );
 
         httpSecurity.oauth2ResourceServer(oauth2 ->

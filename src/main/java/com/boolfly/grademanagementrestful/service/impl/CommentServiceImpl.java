@@ -15,7 +15,6 @@ import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,7 +88,6 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @PostAuthorize("returnObject.createdBy.email == authentication.getName()")
     public Comment updateComment(CommentUpdateRequest request, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
@@ -99,7 +97,6 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    @PostAuthorize("hasAnyRole('ROLE_ADMIN') or returnObject.createdBy.email == authentication.getName()")
     public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
@@ -116,19 +113,11 @@ public class CommentServiceImpl implements CommentService {
     public Page<Comment> getCommentsByPostId(int page, int size, String postId) {
         Long postLongId = TSID.from(postId).toLong();
 
-        if (postRepository.notExistById(postLongId)) {
-            throw new PostNotFoundException(postId);
-        }
-
         return commentRepository.findAllRootCommentsByPost_Id(PageRequest.of(page, size), postLongId);
     }
 
     @Override
     public Page<Comment> getImmediateReplies(int page, int size, Long commentId) {
-        if (commentRepository.notExistById(commentId)) {
-            throw new CommentNotFoundException();
-        }
-
         return commentRepository.findAllImmediateDescendants(PageRequest.of(page, size), commentId);
     }
 }

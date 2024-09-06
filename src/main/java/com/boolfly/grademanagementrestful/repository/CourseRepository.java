@@ -18,6 +18,8 @@ public interface CourseRepository extends JpaRepository<Course, Long>, QuerydslP
 
     boolean existsByIdAndStatusNot(Long id, CourseStatus status);
 
+    boolean existsByIdAndLecturer_IdAndStatusNot(Long courseId, Long lecturerId, CourseStatus status);
+
     default boolean notExistsByIdAndStatusNot(Long id, CourseStatus status) {
         return !existsByIdAndStatusNot(id, status);
     }

@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,6 +70,7 @@ public class StudentResourceImpl implements StudentResource {
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN') or @customSecurityExpression.verifyAccountOwner(authentication.name, #request.id)")
     @Override
     public StudentResponse updateStudent(StudentUpdateRequest request) {
         try {
