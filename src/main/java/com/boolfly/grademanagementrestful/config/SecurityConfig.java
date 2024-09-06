@@ -24,14 +24,9 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String ROLE_ADMIN = RoleModel.ROLE_ADMIN.getRoleName();
-    private final String ROLE_LECTURER = RoleModel.ROLE_LECTURER.getRoleName();
-    private final String ROLE_STUDENT = RoleModel.ROLE_STUDENT.getRoleName();
-    private final String[] searchAPIs = {
-            "/api/v1/subcols/search", "/api/v1/courses/search", "/api/v1/subjects/search",
-            "/api/v1/grades/search", "/api/v1/students/search", "/api/v1/lecturers/search",
-            "/api/v1/forums/search", "/api/v1/posts/search"
-    };
+    private static final String ROLE_ADMIN = RoleModel.ROLE_ADMIN.getRoleName();
+    private static final String ROLE_LECTURER = RoleModel.ROLE_LECTURER.getRoleName();
+    private static final String ROLE_STUDENT = RoleModel.ROLE_STUDENT.getRoleName();
 
     @Value("${jwt.signer-key}")
     private String signerKey;
@@ -49,7 +44,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/v1/lecturers/{lecturerId}").hasAnyAuthority(ROLE_ADMIN, ROLE_LECTURER)
                                 .requestMatchers("/api/v1/courses/{courseId}/subcols").authenticated()
                                 .requestMatchers("/api/v1/courses/{courseId}/student-deactivation/{studentId}").hasAnyAuthority(ROLE_ADMIN, ROLE_LECTURER)
-//                        .requestMatchers(searchAPIs).hasAuthority(ROLE_ADMIN)
                                 .requestMatchers("/api/v1/courses/**").hasAuthority(ROLE_ADMIN)
                                 .requestMatchers("/api/v1/grades/**").hasAnyAuthority(ROLE_ADMIN, ROLE_LECTURER)
                                 .requestMatchers("/api/v1/forums/**").hasAnyAuthority(ROLE_ADMIN, ROLE_LECTURER)
