@@ -70,11 +70,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post deactivatePost(String postId) {
+    public void deactivatePost(String postId) {
         Post post = postRepository.findByIdAndStatus(TSID.from(postId).toLong(), PostStatus.ACTIVE)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
         post.setStatus(PostStatus.INACTIVE);
-        return postRepository.save(post);
+        postRepository.save(post);
     }
 }
