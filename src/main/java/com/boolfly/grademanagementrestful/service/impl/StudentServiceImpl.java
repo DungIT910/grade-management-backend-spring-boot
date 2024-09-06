@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StudentServiceImpl extends UserServiceImpl implements StudentService {
-
     @Override
     public User createStudent(StudentRegistrationRequest request) {
         return create(request, RoleModel.ROLE_STUDENT);

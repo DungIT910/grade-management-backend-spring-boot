@@ -113,19 +113,11 @@ public class CommentServiceImpl implements CommentService {
     public Page<Comment> getCommentsByPostId(int page, int size, String postId) {
         Long postLongId = TSID.from(postId).toLong();
 
-        if (postRepository.notExistById(postLongId)) {
-            throw new PostNotFoundException(postId);
-        }
-
         return commentRepository.findAllRootCommentsByPost_Id(PageRequest.of(page, size), postLongId);
     }
 
     @Override
     public Page<Comment> getImmediateReplies(int page, int size, Long commentId) {
-        if (commentRepository.notExistById(commentId)) {
-            throw new CommentNotFoundException();
-        }
-
         return commentRepository.findAllImmediateDescendants(PageRequest.of(page, size), commentId);
     }
 }

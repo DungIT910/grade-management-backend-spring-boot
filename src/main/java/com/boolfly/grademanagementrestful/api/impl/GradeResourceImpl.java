@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -101,6 +102,7 @@ public class GradeResourceImpl implements GradeResource {
     }
 
     @GetMapping(value = "/{courseId}/sample-grade-csv")
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByCourseId(authentication.name, #courseId)")
     @Override
     public HttpEntity<InputStreamResource> getSampleCSV(@PathVariable String courseId) {
         try {
@@ -120,6 +122,7 @@ public class GradeResourceImpl implements GradeResource {
 
     @PutMapping(value = "/{courseId}/csv-update",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByCourseId(authentication.name, #courseId)")
     @Override
     public BatchResponse<GradeResponse> updateGradesFromCSV(@PathVariable String courseId, MultipartFile request) {
         try {
@@ -145,6 +148,7 @@ public class GradeResourceImpl implements GradeResource {
     }
 
     @GetMapping("/{courseId}/all-grades-csv")
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByCourseId(authentication.name, #courseId)")
     @Override
     public HttpEntity<InputStreamResource> getAllGradesCSV(@PathVariable String courseId) {
         try {
@@ -163,6 +167,7 @@ public class GradeResourceImpl implements GradeResource {
     }
 
     @GetMapping("/{courseId}/all-grades-pdf")
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByCourseId(authentication.name, #courseId)")
     @Override
     public HttpEntity<InputStreamResource> getAllGradesPDF(@PathVariable String courseId) {
         try {

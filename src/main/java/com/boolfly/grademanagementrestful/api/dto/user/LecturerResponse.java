@@ -5,10 +5,5 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LecturerResponse {
-    private String lecturerId;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String avatar;
+public class LecturerResponse extends UserResponse {
 }

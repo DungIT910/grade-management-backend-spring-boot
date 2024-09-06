@@ -19,7 +19,12 @@ public enum RoleModel {
     /**
      * Role for lecturers.
      */
-    ROLE_LECTURER("ROLE_LECTURER", "lecturer");
+    ROLE_LECTURER("ROLE_LECTURER", "lecturer"),
+
+    /**
+     * Role for admins.
+     */
+    ROLE_ADMIN("ROLE_ADMIN", "admin");
 
     private final String roleName;
     private final String roleType;

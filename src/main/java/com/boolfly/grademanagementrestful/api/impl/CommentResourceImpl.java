@@ -10,6 +10,7 @@ import com.boolfly.grademanagementrestful.mapper.CommentMapper;
 import com.boolfly.grademanagementrestful.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,6 +21,7 @@ public class CommentResourceImpl implements CommentResource {
     private final CommentService commentService;
 
     @GetMapping("/{commentId}/immediate-replies")
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByCommentId(authentication.name, #commentId)")
     @Override
     public PageResponse<CommentResponse> getImmediateReplies(int page, int size, @PathVariable Long commentId) {
         try {
@@ -33,6 +35,7 @@ public class CommentResourceImpl implements CommentResource {
     }
 
     @PostMapping("/{ancestorId}/")
+    @PreAuthorize("@customSecurityExpression.verifyUserInCourseByCommentId(authentication.name, #ancestorId)")
     @Override
     public CommentResponse addReplyToComment(CommentAddRequest request, @PathVariable Long ancestorId) {
         try {
@@ -43,6 +46,7 @@ public class CommentResourceImpl implements CommentResource {
     }
 
     @PutMapping("/{commentId}")
+    @PreAuthorize("@customSecurityExpression.verifyCommentOwner(authentication.name, #commentId)")
     @Override
     public CommentResponse updateComment(CommentUpdateRequest request, @PathVariable Long commentId) {
         try {
@@ -53,6 +57,9 @@ public class CommentResourceImpl implements CommentResource {
     }
 
     @DeleteMapping("/{commentId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') " +
+            "or (hasRole('ROLE_LECTURER') and @customSecurityExpression.verifyUserInCourseByCommentId(authentication.name, #commentId))" +
+            "or @customSecurityExpression.verifyCommentOwner(authentication.name, #commentId)")
     @Override
     public void deleteComment(@PathVariable Long commentId) {
         try {

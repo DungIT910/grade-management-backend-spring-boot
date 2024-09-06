@@ -54,17 +54,19 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post updatePost(PostUpdateRequest request) {
         TSID postId = TSID.from(request.getPostId());
-        return postRepository.findByIdAndStatus(postId.toLong(), PostStatus.ACTIVE)
-                .map(post -> {
-                    Optional.ofNullable(request.getTitle())
-                            .filter(title -> !title.isEmpty() && !Objects.equals(post.getTitle(), title))
-                            .ifPresent(post::setTitle);
-                    Optional.ofNullable(request.getContent())
-                            .filter(content -> !content.isEmpty() && !Objects.equals(post.getContent(), content))
-                            .ifPresent(post::setContent);
-                    return postRepository.save(post);
-                })
+
+        Post post = postRepository.findByIdAndStatus(postId.toLong(), PostStatus.ACTIVE)
                 .orElseThrow(() -> new PostNotFoundException(request.getPostId()));
+
+        Optional.ofNullable(request.getTitle())
+                .filter(title -> !title.isEmpty() && !Objects.equals(post.getTitle(), title))
+                .ifPresent(post::setTitle);
+
+        Optional.ofNullable(request.getContent())
+                .filter(content -> !content.isEmpty() && !Objects.equals(post.getContent(), content))
+                .ifPresent(post::setContent);
+
+        return postRepository.save(post);
     }
 
     @Override

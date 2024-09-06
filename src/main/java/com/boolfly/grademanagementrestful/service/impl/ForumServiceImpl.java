@@ -65,9 +65,11 @@ public class ForumServiceImpl implements ForumService {
                     Optional.ofNullable(request.getName())
                             .filter(name -> !name.isEmpty() && !Objects.equals(forum.getName(), name))
                             .ifPresent(forum::setName);
+
                     Optional.ofNullable(request.getDescription())
                             .filter(des -> !des.isEmpty() && !Objects.equals(forum.getDescription(), des))
                             .ifPresent(forum::setDescription);
+
                     Optional.ofNullable(request.getCourseId())
                             .filter(courseId -> !courseId.isEmpty())
                             .map(TSID::from)

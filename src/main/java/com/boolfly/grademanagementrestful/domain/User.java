@@ -12,13 +12,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
+    private static final long serialVersionUID = 3818851949448549964L;
     @Id
     private Long id;
     private String firstName;
     private String lastName;
     private String email;
     private String password;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Role role;
     private String avatar;
     private Boolean active;

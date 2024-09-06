@@ -32,4 +32,7 @@ public interface LecturerResource {
 
     @Operation(summary = "Deactivate a lecturer")
     void deactivateLecturer(String lecturerId);
+
+    @Operation(summary = "Get information of a lecturer")
+    LecturerResponse getLecturer(String lecturerId);
 }

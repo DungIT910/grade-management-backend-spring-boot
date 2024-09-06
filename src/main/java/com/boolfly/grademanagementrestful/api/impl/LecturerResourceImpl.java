@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,6 +63,7 @@ public class LecturerResourceImpl implements LecturerResource {
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN') or @customSecurityExpression.verifyAccountOwner(authentication.name, #request.id)")
     @Override
     public LecturerResponse updateLecturer(LecturerUpdateRequest request) {
         try {
@@ -79,5 +81,12 @@ public class LecturerResourceImpl implements LecturerResource {
         } catch (Exception e) {
             throw new GradeManagementRuntimeException(e);
         }
+    }
+
+    @GetMapping("/{lecturerId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or @customSecurityExpression.verifyAccountOwner(authentication.name, #lecturerId)")
+    @Override
+    public LecturerResponse getLecturer(@PathVariable String lecturerId) {
+        return userMapper.toLecturerResponse(lecturerService.getUser(lecturerId));
     }
 }

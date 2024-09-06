@@ -9,9 +9,13 @@ import com.boolfly.grademanagementrestful.exception.role.RoleNotFoundException;
 import com.boolfly.grademanagementrestful.exception.user.EmailTakenException;
 import com.boolfly.grademanagementrestful.exception.user.LecturerNotFoundException;
 import com.boolfly.grademanagementrestful.exception.user.StudentNotFoundException;
+import com.boolfly.grademanagementrestful.exception.user.UserNotFoundException;
 import com.boolfly.grademanagementrestful.repository.RoleRepository;
 import com.boolfly.grademanagementrestful.repository.UserRepository;
 import io.hypersistence.tsid.TSID;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public abstract class UserServiceImpl implements UserService {
     protected UserRepository userRepository;
@@ -29,13 +33,16 @@ public abstract class UserServiceImpl implements UserService {
         Role role = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new RoleNotFoundException(roleModel.getRoleType()));
 
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
         return userRepository.save(
                 User.builder()
                         .id(TSID.fast().toLong())
                         .email(email)
                         .firstName(request.getFirstName())
                         .lastName(request.getLastName())
-                        .password(request.getPassword())
+                        .password(encodedPassword)
                         .active(true)
                         .role(role)
                         .build()
@@ -79,5 +86,12 @@ public abstract class UserServiceImpl implements UserService {
                     }
                     return new LecturerNotFoundException(userId.toString());
                 });
+    }
+
+    @Override
+    @PreAuthorize("@customSecurityExpression.verifyAccountOwner(authentication.name, #id)")
+    public User getUser(String id) {
+        return userRepository.findById(TSID.from(id).toLong())
+                .orElseThrow(UserNotFoundException::new);
     }
 }
